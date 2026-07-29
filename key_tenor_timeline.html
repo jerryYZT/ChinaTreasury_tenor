@@ -133,7 +133,8 @@
   .findings ul { margin: 0; padding-left: 1.15em; color: var(--ink-secondary); font-size: 14px; line-height: 1.65; }
   .findings li { margin: 4px 0; }
   .findings li strong { color: var(--ink-primary); }
-  .guide-card { margin-bottom: 28px; }
+  .guide-card { margin-bottom: 22px; }
+  header + .guide-card { margin-top: -8px; }
   html { scroll-behavior: smooth; scroll-padding-top: 16px; }
 
   .serif { font-family: "Songti SC", "STSong", Georgia, "Noto Serif SC", serif; }
@@ -289,8 +290,6 @@
   <a href="#weekdayCompare">星期横向对比</a>
   <a href="#monthRhythm">年内节奏</a>
   <a href="#quarterCompare">自然季度对比</a>
-  <a href="#howToRead">怎么读这份数据</a>
-  <a href="#notes">口径提醒</a>
 </nav>
 
 <div class="wrap">
@@ -305,6 +304,17 @@
       <div class="meta-item"><span class="k">统计口径</span><span class="v">按期限+日期去重后的招标日期</span></div>
     </div>
   </header>
+
+  <div class="compare-card guide-card" id="howToRead">
+    <h2 class="section-title" style="margin-bottom:10px;">怎么读这份数据</h2>
+    <p class="section-note" style="margin:0; max-width:82ch;">
+      三个期限的招标日几乎全部落在周一至周五，样本中周六、周日为零，图中已省略。
+      "月内时点"把每月拆成上/中/下旬（1–10日 / 11–20日 / 21–31日）三段，柱越高代表该期限越常在那个时间段招标。
+      "季度节奏"里的中位数最能代表典型情况——三个期限的中位数都是每季度 3 次，通常对应"1 次首发 + 2 次续发"；
+      均值会被个别样本量偏多的季度拉高，不代表常态。"年内节奏"和"自然季度对比"两节是同一现象的两种切法：
+      前者看具体哪个月更活跃，后者把月份归并到公历季度，便于和发行计划的季度安排对照阅读。
+    </p>
+  </div>
 
   <section class="findings" id="findings">
     <h2 class="section-title">主要结论</h2>
@@ -377,17 +387,6 @@
     <div class="legend" id="quarterLegend"></div>
     <div id="quarterChart"></div>
     <div class="callout" id="quarterCallout"></div>
-  </div>
-
-  <div class="compare-card guide-card" id="howToRead">
-    <h2 class="section-title" style="margin-bottom:10px;">怎么读这份数据</h2>
-    <p class="section-note" style="margin:0; max-width:82ch;">
-      三个期限的招标日几乎全部落在周一至周五，样本中周六、周日为零，图中已省略。
-      "月内时点"把每月拆成上/中/下旬（1–10日 / 11–20日 / 21–31日）三段，柱越高代表该期限越常在那个时间段招标。
-      "季度节奏"里的中位数最能代表典型情况——三个期限的中位数都是每季度 3 次，通常对应"1 次首发 + 2 次续发"；
-      均值会被个别样本量偏多的季度拉高，不代表常态。"年内节奏"和"自然季度对比"两节是同一现象的两种切法：
-      前者看具体哪个月更活跃，后者把月份归并到公历季度，便于和发行计划的季度安排对照阅读。
-    </p>
   </div>
 
   <footer id="notes">
