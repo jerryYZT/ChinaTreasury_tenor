@@ -91,6 +91,51 @@
   body { padding: 40px 20px 64px; }
   .wrap { max-width: 1180px; margin: 0 auto; }
 
+  /* ---------- toc sidebar ---------- */
+  .toc {
+    position: fixed; top: 72px; left: 18px; width: 168px; z-index: 20;
+    max-height: calc(100vh - 96px); overflow: auto;
+    padding: 12px 10px 14px; border-radius: 12px;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    backdrop-filter: blur(8px);
+  }
+  .toc .toc-label {
+    font-size: 11px; letter-spacing: 0.08em; color: var(--ink-muted);
+    font-weight: 600; margin: 0 0 10px; padding: 0 6px;
+  }
+  .toc a {
+    display: block; padding: 6px 8px; margin: 1px 0; border-radius: 7px;
+    color: var(--ink-secondary); text-decoration: none; font-size: 12.5px; line-height: 1.35;
+  }
+  .toc a:hover { background: var(--surface-2); color: var(--ink-primary); }
+  .toc a.active { background: var(--surface-2); color: var(--accent); font-weight: 600; }
+  @media (min-width: 1280px) {
+    body { padding-left: 210px; }
+  }
+  @media (max-width: 1279px) {
+    .toc {
+      position: sticky; top: 0; left: auto; width: auto; max-height: none;
+      margin: -20px -8px 22px; z-index: 10;
+      display: flex; flex-wrap: wrap; gap: 4px 2px; align-items: center;
+      border-radius: 0 0 12px 12px;
+    }
+    .toc .toc-label { width: 100%; margin-bottom: 4px; }
+    .toc a { font-size: 12px; padding: 5px 8px; }
+  }
+  @media print { .toc { display: none; } }
+
+  .findings {
+    background: var(--surface); border: 1px solid var(--border-strong); border-radius: 14px;
+    padding: 18px 20px 16px; box-shadow: var(--shadow); margin-bottom: 28px;
+  }
+  .findings h2.section-title { margin-bottom: 10px; }
+  .findings ul { margin: 0; padding-left: 1.15em; color: var(--ink-secondary); font-size: 14px; line-height: 1.65; }
+  .findings li { margin: 4px 0; }
+  .findings li strong { color: var(--ink-primary); }
+  .guide-card { margin-bottom: 28px; }
+  html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+
   .serif { font-family: "Songti SC", "STSong", Georgia, "Noto Serif SC", serif; }
 
   /* ---------- header ---------- */
@@ -131,8 +176,8 @@
 
   /* ---------- section titles ---------- */
   h2.section-title {
-    font-size: 13px; letter-spacing: 0.08em; color: var(--ink-muted); font-weight: 600;
-    margin: 0 0 16px; text-transform: none;
+    font-size: clamp(18px, 2.2vw, 22px); letter-spacing: 0.02em; color: var(--ink-primary); font-weight: 600;
+    margin: 0 0 16px; text-transform: none; line-height: 1.35;
   }
   p.section-note { font-size: 12.5px; color: var(--ink-muted); margin: -10px 0 16px; max-width: 68ch; line-height: 1.55; }
   .callout {
@@ -231,9 +276,25 @@
 </head>
 <body>
 
+<nav class="toc" id="toc" aria-label="目录">
+  <div class="toc-label">目录</div>
+  <a href="#findings">主要结论</a>
+  <a href="#kpiRow">样本概览</a>
+  <a href="#planVsActualCard">招标日期吻合度</a>
+  <a href="#issuanceTimeline">发行节奏与规模</a>
+  <a href="#volumeSection">发行总量</a>
+  <a href="#specialTimeline">特别国债节奏</a>
+  <a href="#specialVolume">特别国债总量</a>
+  <a href="#tenorDetail">分期限详情</a>
+  <a href="#weekdayCompare">星期横向对比</a>
+  <a href="#monthRhythm">年内节奏</a>
+  <a href="#quarterCompare">自然季度对比</a>
+  <a href="#howToRead">怎么读这份数据</a>
+  <a href="#notes">口径提醒</a>
+</nav>
 
 <div class="wrap">
-  <header>
+  <header id="top">
     <div class="eyebrow">财政部国债发行公告数据集 · 季度/年度计划公告</div>
     <h1 class="serif">关键期限国债发行时间规律</h1>
     <p class="sub">5年期、10年期、30年期记账式附息国债的招标日历特征：星期几招标、月内什么时候、每季度几次、首发与续发各占多少。数据来自财政部与中央结算公司（ChinaBond）两个来源的季度/年度发行计划公告，按"品种+期限+日期"去重后统计，与单期正式发行公告是两套不同口径（见页末说明）。</p>
@@ -245,15 +306,25 @@
     </div>
   </header>
 
+  <section class="findings" id="findings">
+    <h2 class="section-title">主要结论</h2>
+    <ul>
+      <li>三个期限的招标日几乎全部落在<strong>周一至周五</strong>，样本中周末为零；集中日为周三与周五。</li>
+      <li>典型季度节奏一致：5Y / 10Y / 30Y 的每季度招标次数<strong>中位数都是 3</strong>（通常 1 次首发 + 2 次续发）。</li>
+      <li>年内最活跃窗口是<strong>7–9 月（自然 Q3）</strong>；10 年期季节性最强（Q3 相对 Q1 接近两倍），5 年期最平稳。</li>
+      <li>在 2025-11 至 2026-07 核对窗口内，计划招标日与实际招标日<strong>逐日吻合</strong>（5Y 9/9、10Y 14/14、30Y 13/13）。</li>
+    </ul>
+  </section>
+
   <section class="kpi-row" id="kpiRow"></section>
 
   <div class="compare-card" id="planVsActualCard">
     <h2 class="section-title" style="margin-bottom:4px;">计划 vs 实际执行 · 招标日期吻合度</h2>
-    <p class="section-note" style="margin-bottom:2px;">把2025年11月—2026年7月已实际发生的单期发行公告（raw_data.xlsx）与此前季度/年度计划公告中对应期限的计划招标日逐一核对。浅色刻度＝计划中的招标日，实心圆点＝实际发生并落在同一天。</p>
+    <p class="section-note" style="margin-bottom:2px;">把2025年11月—2026年7月已实际发生的单期发行公告与此前季度/年度计划公告中对应期限的计划招标日逐一核对。下方按期限画横向时间轴：空心刻度＝计划招标日，实心圆点＝实际落在同一天的招标。</p>
     <div id="planVsActualBody"></div>
   </div>
 
-  <div class="compare-card">
+  <div class="compare-card" id="issuanceTimeline">
     <h2 class="section-title" style="margin-bottom:4px;">发行节奏与规模时间轴 · 每一只券的招标轨迹</h2>
     <p class="section-note" style="margin-bottom:2px;">
       <strong>覆盖范围说明：</strong>本节需要每次招标的实际发行金额，这个字段只在"单期正式发行公告"里公布，而本项目
@@ -264,43 +335,43 @@
     <div id="timelineBody"></div>
   </div>
 
-  <div class="compare-card">
+  <div class="compare-card" id="volumeSection">
     <h2 class="section-title" style="margin-bottom:4px;">发行总量 · 按券号累计</h2>
     <p class="section-note" style="margin-bottom:14px;">同一只券号（同一期号）的首发+历次续发金额堆叠为一根柱，柱内每一段代表一次招标，颜色与上方时间轴保持一致；特别国债用菱形标记区分。</p>
     <div id="volumeBody"></div>
   </div>
 
-  <div class="compare-card">
+  <div class="compare-card" id="specialTimeline">
     <h2 class="section-title" style="margin-bottom:4px;">特别国债 · 发行节奏与规模时间轴</h2>
     <p class="section-note" style="margin-bottom:2px;">
       特别国债横跨多个期限（本次数据里出现在10Y/15Y/20Y/30Y/50Y），实际上是两个不同项目：
-      <strong>到期续作特别国债</strong>（为对冲到期特别国债续作，定向发行给指定银行，一次性操作，图中用★标记）
+      <strong>到期续作特别国债</strong>（为对冲到期特别国债续作，定向发行给指定银行，一次性操作，图中用▲标记）
       与 <strong>超长期特别国债</strong>（2024年起常态化按季发行，同样有首发+续发节奏，图中用●标记）。
       数据窗口：2025年12月–2026年7月（约7个月，是本项目当前抓到的特别国债单期公告全部历史）。
     </p>
     <div id="specialTimelineBody"></div>
   </div>
 
-  <div class="compare-card">
+  <div class="compare-card" id="specialVolume">
     <h2 class="section-title" style="margin-bottom:4px;">特别国债 · 发行总量（按券号+期限累计）</h2>
     <p class="section-note" style="margin-bottom:14px;">窗口内特别国债合计发行 <strong id="specialGrandTotal"></strong> 亿元，其中到期续作与超长期两个项目分开列示。</p>
     <div id="specialVolumeBody"></div>
   </div>
 
-  <h2 class="section-title">分期限详情 · 星期分布 / 月内时点 / 季度节奏</h2>
+  <h2 class="section-title" id="tenorDetail">分期限详情 · 星期分布 / 月内时点 / 季度节奏</h2>
   <div class="tenor-grid" id="tenorGrid"></div>
 
-  <div class="compare-card">
+  <div class="compare-card" id="weekdayCompare">
     <h2 class="section-title" style="margin-bottom:14px;">横向对比 · 三个期限的星期分布叠放对照</h2>
     <div class="legend" id="compareLegend"></div>
     <div id="compareChart"></div>
   </div>
 
-  <h2 class="section-title">年内节奏 · 哪些月份招标更密集</h2>
+  <h2 class="section-title" id="monthRhythm">年内节奏 · 哪些月份招标更密集</h2>
   <p class="section-note">按数据覆盖的年数归一化为"每年该月平均招标次数"，避免因样本起止年份不同（数据从2020年年中开始，1–3月覆盖的年数比7–9月少）而失真。</p>
   <div class="tenor-grid" id="monthGrid"></div>
 
-  <div class="compare-card">
+  <div class="compare-card" id="quarterCompare">
     <h2 class="section-title" style="margin-bottom:4px;">自然季度对比 · Q1–Q4 平均招标次数</h2>
     <p class="section-note" style="margin-bottom:14px;">按公历季度（Q1=1–3月，Q2=4–6月，Q3=7–9月，Q4=10–12月）而非任意滚动季度统计，同样按覆盖年数归一化。</p>
     <div class="legend" id="quarterLegend"></div>
@@ -308,13 +379,18 @@
     <div class="callout" id="quarterCallout"></div>
   </div>
 
-  <footer>
-    <strong>怎么读这份数据：</strong>三个期限的招标日几乎全部落在周一至周五，样本中周六、周日为零，图中已省略。
-    "月内时点"把每月拆成上/中/下旬（1–10日 / 11–20日 / 21–31日）三段，柱越高代表该期限越常在那个时间段招标。
-    "季度节奏"里的中位数最能代表典型情况——三个期限的中位数都是每季度 3 次，通常对应"1 次首发 + 2 次续发"；
-    均值会被个别样本量偏多的季度拉高，不代表常态。"年内节奏"和"自然季度对比"两节回答的是同一件事的两种切法——
-    前者看具体哪个月更活跃，后者把月份归并到公历季度，两者结论一致：三个期限都在 <strong>7–9月（自然Q3）</strong>
-    招标最密集，10年期尤其明显（Q3平均单月/单季次数比Q1高出近一倍），这与三季度国债发行计划通常安排更多续发行有关。<br/><br/>
+  <div class="compare-card guide-card" id="howToRead">
+    <h2 class="section-title" style="margin-bottom:10px;">怎么读这份数据</h2>
+    <p class="section-note" style="margin:0; max-width:82ch;">
+      三个期限的招标日几乎全部落在周一至周五，样本中周六、周日为零，图中已省略。
+      "月内时点"把每月拆成上/中/下旬（1–10日 / 11–20日 / 21–31日）三段，柱越高代表该期限越常在那个时间段招标。
+      "季度节奏"里的中位数最能代表典型情况——三个期限的中位数都是每季度 3 次，通常对应"1 次首发 + 2 次续发"；
+      均值会被个别样本量偏多的季度拉高，不代表常态。"年内节奏"和"自然季度对比"两节是同一现象的两种切法：
+      前者看具体哪个月更活跃，后者把月份归并到公历季度，便于和发行计划的季度安排对照阅读。
+    </p>
+  </div>
+
+  <footer id="notes">
     <strong>口径提醒：</strong>本页基于财政部每季度（部分年度另发年度计划）公布的《国债发行有关安排》滚动计划公告，
     是提前一个季度甚至一整年公布的日历指引；与"单期正式发行公告"（每期国债招标前数日单独发布，用于计算"提前几天公告"）
     是两套不同节奏的公告体系，不可混同解读。完整字段定义见项目 <code>glossary.md</code>；本页图表数据外挂于 <code>data/*.csv</code>（GitHub raw / Pages 相对路径加载）。
@@ -573,12 +649,21 @@
     kpiRow.appendChild(div);
   });
 
-  // ---- plan-vs-actual timeline ----
+  // ---- plan-vs-actual timeline (lane style, month ticks) ----
   (function renderPlanVsActual() {
     var body = document.getElementById("planVsActualBody");
     var covStart = new Date(PLAN_VS_ACTUAL.coverage[0]);
     var covEnd = new Date(PLAN_VS_ACTUAL.coverage[1]);
     var span = covEnd - covStart;
+    var w = 1080;
+
+    var legend = document.createElement("div");
+    legend.className = "lane-legend";
+    legend.style.marginBottom = "8px";
+    legend.innerHTML =
+      '<div class="item"><span class="sw" style="background:transparent;border:1.5px dashed var(--ink-muted);border-radius:50%"></span>计划招标日（空心）</div>' +
+      '<div class="item"><span class="sw" style="background:var(--ink-secondary);border-radius:50%"></span>实际招标日（与计划同日命中）</div>';
+    body.appendChild(legend);
 
     ["5Y", "10Y", "30Y"].forEach(function (term) {
       var d = PLAN_VS_ACTUAL[term];
@@ -586,40 +671,49 @@
       d.actual.forEach(function (s) { actualSet[s] = true; });
       var matched = d.planned.filter(function (s) { return actualSet[s]; }).length;
 
-      var row = document.createElement("div");
-      row.className = "timeline-row";
+      var block = document.createElement("div");
+      block.className = "lane-block";
 
-      var termEl = document.createElement("div");
-      termEl.className = "timeline-term";
-      termEl.style.color = DATA[term].color;
-      termEl.textContent = term;
-      row.appendChild(termEl);
+      var head = document.createElement("div");
+      head.className = "lane-head";
+      head.innerHTML = '<span class="term" style="color:' + DATA[term].color + '">' + term + '</span>' +
+        '<span class="totals">计划 ' + d.planned.length + ' 日 · 实际命中 <b style="color:var(--ink-primary)">' +
+        matched + "/" + d.planned.length + '</b></span>';
+      block.appendChild(head);
 
-      var trackWrap = document.createElement("div");
-      trackWrap.className = "timeline-track";
-      var w = 900, h = 34, midY = 20;
+      var h = 70, midY = 34;
       var svg = svgEl("svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h, style: "max-width:" + w + "px;display:block" });
-      svg.appendChild(svgEl("line", { x1: 0, x2: w, y1: midY, y2: midY, class: "gridline" }));
+      svg.appendChild(svgEl("line", { x1: 4, x2: w - 4, y1: midY, y2: midY, class: "gridline" }));
+
+      var cursor = new Date(covStart.getFullYear(), covStart.getMonth(), 1);
+      while (cursor <= covEnd) {
+        var x = ((cursor - covStart) / span) * (w - 8) + 4;
+        if (cursor >= covStart) {
+          svg.appendChild(svgEl("line", { x1: x, x2: x, y1: midY - 3, y2: midY + 3, class: "gridline" }));
+          svg.appendChild(text(x, h - 6, (cursor.getMonth() + 1) + "月", "axis-label", { "text-anchor": "middle", "font-size": "9.5" }));
+        }
+        cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+      }
 
       d.planned.forEach(function (s) {
-        var x = ((new Date(s) - covStart) / span) * w;
+        var x = ((new Date(s) - covStart) / span) * (w - 8) + 4;
         var hasActual = !!actualSet[s];
-        svg.appendChild(svgEl("circle", {
-          cx: x, cy: midY, r: hasActual ? 6 : 5,
-          style: hasActual ? ("fill:" + DATA[term].color) : "fill:none",
-          stroke: hasActual ? "none" : "var(--ink-muted)", "stroke-width": hasActual ? 0 : 1.5,
-          "stroke-dasharray": hasActual ? "0" : "2,2"
-        }));
+        if (hasActual) {
+          svg.appendChild(svgEl("circle", {
+            cx: x, cy: midY, r: 7,
+            style: "fill:" + DATA[term].color, opacity: 0.92
+          }));
+        } else {
+          svg.appendChild(svgEl("circle", {
+            cx: x, cy: midY, r: 6,
+            style: "fill:none",
+            stroke: "var(--ink-muted)", "stroke-width": 1.5, "stroke-dasharray": "2.5,2"
+          }));
+        }
       });
-      trackWrap.appendChild(svg);
-      row.appendChild(trackWrap);
 
-      var matchEl = document.createElement("div");
-      matchEl.className = "timeline-match";
-      matchEl.innerHTML = "<b>" + matched + "/" + d.planned.length + "</b> 命中";
-      row.appendChild(matchEl);
-
-      body.appendChild(row);
+      block.appendChild(svg);
+      body.appendChild(block);
     });
 
     var note = document.createElement("p");
@@ -1048,6 +1142,27 @@
     '<strong>Q3（7–9月）是全年招标最密集的自然季度</strong>——相对Q1（1–3月）的倍数：' +
     '5Y ' + q3Ratios[0] + '× ／ 10Y ' + q3Ratios[1] + '× ／ 30Y ' + q3Ratios[2] + '×。' +
     '10年期的季节性最强，Q3平均招标次数接近Q1的两倍；5年期最平稳，四个季度差异不大。';
+  // ---- toc active state ----
+  (function setupToc() {
+    var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+    if (!links.length || !("IntersectionObserver" in window)) return;
+    var map = {};
+    links.forEach(function (a) {
+      var id = a.getAttribute("href").slice(1);
+      var el = document.getElementById(id);
+      if (el) map[id] = a;
+    });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        links.forEach(function (a) { a.classList.remove("active"); });
+        var a = map[en.target.id];
+        if (a) a.classList.add("active");
+      });
+    }, { rootMargin: "-20% 0px -65% 0px", threshold: 0.01 });
+    Object.keys(map).forEach(function (id) { io.observe(document.getElementById(id)); });
+  })();
+
   }
 
   Promise.all([
