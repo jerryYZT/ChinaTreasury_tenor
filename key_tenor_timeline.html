@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>国债关键期限发行时间规律 · 5Y / 10Y / 30Y</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface: #faf9f6;
+    --surface-2: #f2efe7;
+    --page: #ece8dd;
+    --ink-primary: #201d18;
+    --ink-secondary: #5c584d;
+    --ink-muted: #938d80;
+    --border: rgba(32,29,24,0.11);
+    --border-strong: rgba(32,29,24,0.18);
+    --accent: #9a3324;
+    --accent-ink: #ffffff;
+    --series-5y: #c98a2e;
+    --series-10y: #3d6b6e;
+    --series-30y: #9a3324;
+    --grid-line: #e2ddd0;
+    --shadow: 0 1px 2px rgba(32,29,24,0.06), 0 8px 24px -12px rgba(32,29,24,0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface: #1a1815;
+      --surface-2: #221f1a;
+      --page: #121110;
+      --ink-primary: #f4f1ea;
+      --ink-secondary: #c4beb0;
+      --ink-muted: #8c8677;
+      --border: rgba(244,241,234,0.10);
+      --border-strong: rgba(244,241,234,0.18);
+      --accent: #d97a5f;
+      --accent-ink: #201310;
+      --series-5y: #dba554;
+      --series-10y: #5a9599;
+      --series-30y: #d97a5f;
+      --grid-line: #2a2620;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface: #1a1815;
+    --surface-2: #221f1a;
+    --page: #121110;
+    --ink-primary: #f4f1ea;
+    --ink-secondary: #c4beb0;
+    --ink-muted: #8c8677;
+    --border: rgba(244,241,234,0.10);
+    --border-strong: rgba(244,241,234,0.18);
+    --accent: #d97a5f;
+    --accent-ink: #201310;
+    --series-5y: #dba554;
+    --series-10y: #5a9599;
+    --series-30y: #d97a5f;
+    --grid-line: #2a2620;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --surface: #faf9f6;
+    --surface-2: #f2efe7;
+    --page: #ece8dd;
+    --ink-primary: #201d18;
+    --ink-secondary: #5c584d;
+    --ink-muted: #938d80;
+    --border: rgba(32,29,24,0.11);
+    --border-strong: rgba(32,29,24,0.18);
+    --accent: #9a3324;
+    --accent-ink: #ffffff;
+    --series-5y: #c98a2e;
+    --series-10y: #3d6b6e;
+    --series-30y: #9a3324;
+    --grid-line: #e2ddd0;
+    --shadow: 0 1px 2px rgba(32,29,24,0.06), 0 8px 24px -12px rgba(32,29,24,0.18);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { padding: 40px 20px 64px; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .serif { font-family: "Songti SC", "STSong", Georgia, "Noto Serif SC", serif; }
+
+  /* ---------- header ---------- */
+  header { padding: 8px 4px 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12.5px; letter-spacing: 0.08em; color: var(--accent);
+    font-weight: 600; margin-bottom: 14px;
+  }
+  .eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  h1.serif {
+    font-size: clamp(26px, 3.6vw, 38px); font-weight: 600; line-height: 1.25;
+    margin: 0 0 10px; text-wrap: balance; letter-spacing: 0.01em;
+  }
+  header p.sub {
+    font-size: 15.5px; color: var(--ink-secondary); margin: 0 0 22px; max-width: 62ch; line-height: 1.6;
+  }
+  .meta-strip {
+    display: flex; flex-wrap: wrap; gap: 22px 32px;
+  }
+  .meta-item { display: flex; flex-direction: column; gap: 3px; }
+  .meta-item .k { font-size: 11.5px; color: var(--ink-muted); letter-spacing: 0.04em; }
+  .meta-item .v { font-size: 14.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* ---------- kpi row ---------- */
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px; margin-bottom: 36px;
+  }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .kpi .label { font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; }
+  .kpi .value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .kpi .value .unit { font-size: 13px; font-weight: 500; color: var(--ink-secondary); margin-left: 3px; }
+  .kpi .note { font-size: 12px; color: var(--ink-secondary); margin-top: 5px; line-height: 1.4; }
+
+  /* ---------- section titles ---------- */
+  h2.section-title {
+    font-size: 13px; letter-spacing: 0.08em; color: var(--ink-muted); font-weight: 600;
+    margin: 0 0 16px; text-transform: none;
+  }
+  p.section-note { font-size: 12.5px; color: var(--ink-muted); margin: -10px 0 16px; max-width: 68ch; line-height: 1.55; }
+  .callout {
+    margin-top: 16px; padding: 12px 14px; border-radius: 9px; background: var(--surface-2);
+    border: 1px solid var(--border); font-size: 13px; color: var(--ink-secondary); line-height: 1.6;
+  }
+  .callout strong { color: var(--ink-primary); }
+  .month-peak { font-size: 12px; color: var(--accent); font-weight: 600; margin-top: 2px; }
+
+  /* ---------- plan vs actual timelines ---------- */
+  .timeline-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px dashed var(--border); }
+  .timeline-row:last-child { border-bottom: none; }
+  .timeline-term { width: 52px; flex: none; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .timeline-track { flex: 1; min-width: 0; }
+  .timeline-match { width: 92px; flex: none; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--ink-secondary); }
+  .timeline-match b { color: var(--ink-primary); font-size: 15px; }
+
+  /* ---------- issuance rhythm/volume timeline ---------- */
+  .lane-block { padding: 16px 0 20px; border-bottom: 1px dashed var(--border); }
+  .lane-block:last-child { border-bottom: none; }
+  .lane-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .lane-head .term { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .lane-head .totals { font-size: 12px; color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
+  .lane-legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 8px; }
+  .lane-legend .item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-secondary); }
+  .lane-legend .sw { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .lane-legend .sw.special { border-radius: 0; transform: rotate(45deg); }
+
+  .vol-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 880px) { .vol-grid { grid-template-columns: 1fr; } }
+  .vol-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 16px 12px; }
+  .vol-card .term { font-size: 15px; font-weight: 700; margin-bottom: 10px; font-variant-numeric: tabular-nums; }
+
+  /* ---------- tenor grid ---------- */
+  .tenor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+  @media (max-width: 880px) { .tenor-grid { grid-template-columns: 1fr; } }
+
+  .tenor-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px 22px 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 18px;
+  }
+  .tenor-head { display: flex; align-items: baseline; justify-content: space-between; }
+  .tenor-name { display: flex; align-items: baseline; gap: 9px; }
+  .tenor-name .dot { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .tenor-name .label { font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tenor-head .n { font-size: 12px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+
+  .chart-block { display: flex; flex-direction: column; gap: 8px; }
+  .chart-label { font-size: 11.5px; color: var(--ink-muted); letter-spacing: 0.02em; }
+  svg text { font-family: inherit; fill: var(--ink-secondary); }
+  svg .bar-value { fill: var(--ink-primary); font-weight: 600; font-variant-numeric: tabular-nums; }
+  svg .axis-label { fill: var(--ink-muted); }
+  svg .gridline { stroke: var(--grid-line); stroke-width: 1; }
+
+  .stat-pair { display: flex; gap: 12px; }
+  .stat-box {
+    flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px;
+    padding: 11px 13px;
+  }
+  .stat-box .k { font-size: 11px; color: var(--ink-muted); margin-bottom: 4px; }
+  .stat-box .v { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-box .v small { font-size: 11px; font-weight: 500; color: var(--ink-secondary); }
+
+  .ratio-bar {
+    height: 8px; border-radius: 5px; overflow: hidden; display: flex; border: 1px solid var(--border);
+  }
+  .ratio-bar span { display: block; height: 100%; }
+  .ratio-caption { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-secondary); margin-top: 6px; }
+
+  /* ---------- comparison section ---------- */
+  .compare-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 24px 26px 20px; box-shadow: var(--shadow); margin-bottom: 36px;
+  }
+  .legend { display: flex; gap: 18px; margin-bottom: 4px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-secondary); }
+  .legend-item .sw { width: 10px; height: 10px; border-radius: 3px; }
+
+  footer {
+    margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--ink-muted); line-height: 1.7; max-width: 82ch;
+  }
+  footer strong { color: var(--ink-secondary); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .tenor-card, .kpi, .compare-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  }
+
+  @media print {
+    body { background: var(--surface); padding: 16px; }
+    .compare-card, .tenor-card, .kpi, .lane-block, .vol-card { break-inside: avoid; box-shadow: none; }
+    header { break-after: avoid; }
+    .kpi-row { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">财政部国债发行公告数据集 · 季度/年度计划公告</div>
+    <h1 class="serif">关键期限国债发行时间规律</h1>
+    <p class="sub">5年期、10年期、30年期记账式附息国债的招标日历特征：星期几招标、月内什么时候、每季度几次、首发与续发各占多少。数据来自财政部与中央结算公司（ChinaBond）两个来源的季度/年度发行计划公告，按"品种+期限+日期"去重后统计，与单期正式发行公告是两套不同口径（见页末说明）。</p>
+    <div class="meta-strip">
+      <div class="meta-item"><span class="k">数据覆盖范围</span><span class="v">2020-07 至 2026-12</span></div>
+      <div class="meta-item"><span class="k">计划公告数量</span><span class="v">87 份</span></div>
+      <div class="meta-item"><span class="k">数据来源</span><span class="v">MOF zwgls + ChinaBond 镜像</span></div>
+      <div class="meta-item"><span class="k">统计口径</span><span class="v">按期限+日期去重后的招标日期</span></div>
+    </div>
+  </header>
+
+  <section class="kpi-row" id="kpiRow"></section>
+
+  <div class="compare-card" id="planVsActualCard">
+    <h2 class="section-title" style="margin-bottom:4px;">计划 vs 实际执行 · 招标日期吻合度</h2>
+    <p class="section-note" style="margin-bottom:2px;">把2025年11月—2026年7月已实际发生的单期发行公告（raw_data.xlsx）与此前季度/年度计划公告中对应期限的计划招标日逐一核对。浅色刻度＝计划中的招标日，实心圆点＝实际发生并落在同一天。</p>
+    <div id="planVsActualBody"></div>
+  </div>
+
+  <div class="compare-card">
+    <h2 class="section-title" style="margin-bottom:4px;">发行节奏与规模时间轴 · 每一只券的招标轨迹</h2>
+    <p class="section-note" style="margin-bottom:2px;">
+      <strong>覆盖范围说明：</strong>本节需要每次招标的实际发行金额，这个字段只在"单期正式发行公告"里公布，而本项目
+      对这类公告的抓取目前只回溯到 <strong>2025年11月–2026年7月</strong>（约9个月，见页首"数据覆盖范围"外的另一套口径——
+      招标<em>日期</em>的规律可回溯到2020年，但招标<em>金额</em>暂时只有这9个月）。下面时间轴按实际能拿到金额的这9个月绘制，
+      不是两年整；如果你需要更早的发行金额，需要额外扩展单期公告的抓取范围。
+    </p>
+    <div id="timelineBody"></div>
+  </div>
+
+  <div class="compare-card">
+    <h2 class="section-title" style="margin-bottom:4px;">发行总量 · 按券号累计</h2>
+    <p class="section-note" style="margin-bottom:14px;">同一只券号（同一期号）的首发+历次续发金额堆叠为一根柱，柱内每一段代表一次招标，颜色与上方时间轴保持一致；特别国债用菱形标记区分。</p>
+    <div id="volumeBody"></div>
+  </div>
+
+  <div class="compare-card">
+    <h2 class="section-title" style="margin-bottom:4px;">特别国债 · 发行节奏与规模时间轴</h2>
+    <p class="section-note" style="margin-bottom:2px;">
+      特别国债横跨多个期限（本次数据里出现在10Y/15Y/20Y/30Y/50Y），实际上是两个不同项目：
+      <strong>到期续作特别国债</strong>（为对冲到期特别国债续作，定向发行给指定银行，一次性操作，图中用★标记）
+      与 <strong>超长期特别国债</strong>（2024年起常态化按季发行，同样有首发+续发节奏，图中用●标记）。
+      数据窗口：2025年12月–2026年7月（约7个月，是本项目当前抓到的特别国债单期公告全部历史）。
+    </p>
+    <div id="specialTimelineBody"></div>
+  </div>
+
+  <div class="compare-card">
+    <h2 class="section-title" style="margin-bottom:4px;">特别国债 · 发行总量（按券号+期限累计）</h2>
+    <p class="section-note" style="margin-bottom:14px;">窗口内特别国债合计发行 <strong id="specialGrandTotal"></strong> 亿元，其中到期续作与超长期两个项目分开列示。</p>
+    <div id="specialVolumeBody"></div>
+  </div>
+
+  <h2 class="section-title">分期限详情 · 星期分布 / 月内时点 / 季度节奏</h2>
+  <div class="tenor-grid" id="tenorGrid"></div>
+
+  <div class="compare-card">
+    <h2 class="section-title" style="margin-bottom:14px;">横向对比 · 三个期限的星期分布叠放对照</h2>
+    <div class="legend" id="compareLegend"></div>
+    <div id="compareChart"></div>
+  </div>
+
+  <h2 class="section-title">年内节奏 · 哪些月份招标更密集</h2>
+  <p class="section-note">按数据覆盖的年数归一化为"每年该月平均招标次数"，避免因样本起止年份不同（数据从2020年年中开始，1–3月覆盖的年数比7–9月少）而失真。</p>
+  <div class="tenor-grid" id="monthGrid"></div>
+
+  <div class="compare-card">
+    <h2 class="section-title" style="margin-bottom:4px;">自然季度对比 · Q1–Q4 平均招标次数</h2>
+    <p class="section-note" style="margin-bottom:14px;">按公历季度（Q1=1–3月，Q2=4–6月，Q3=7–9月，Q4=10–12月）而非任意滚动季度统计，同样按覆盖年数归一化。</p>
+    <div class="legend" id="quarterLegend"></div>
+    <div id="quarterChart"></div>
+    <div class="callout" id="quarterCallout"></div>
+  </div>
+
+  <footer>
+    <strong>怎么读这份数据：</strong>三个期限的招标日几乎全部落在周一至周五，样本中周六、周日为零，图中已省略。
+    "月内时点"把每月拆成上/中/下旬（1–10日 / 11–20日 / 21–31日）三段，柱越高代表该期限越常在那个时间段招标。
+    "季度节奏"里的中位数最能代表典型情况——三个期限的中位数都是每季度 3 次，通常对应"1 次首发 + 2 次续发"；
+    均值会被个别样本量偏多的季度拉高，不代表常态。"年内节奏"和"自然季度对比"两节回答的是同一件事的两种切法——
+    前者看具体哪个月更活跃，后者把月份归并到公历季度，两者结论一致：三个期限都在 <strong>7–9月（自然Q3）</strong>
+    招标最密集，10年期尤其明显（Q3平均单月/单季次数比Q1高出近一倍），这与三季度国债发行计划通常安排更多续发行有关。<br/><br/>
+    <strong>口径提醒：</strong>本页基于财政部每季度（部分年度另发年度计划）公布的《国债发行有关安排》滚动计划公告，
+    是提前一个季度甚至一整年公布的日历指引；与"单期正式发行公告"（每期国债招标前数日单独发布，用于计算"提前几天公告"）
+    是两套不同节奏的公告体系，不可混同解读。完整字段定义见项目 <code>glossary.md</code>，逐期数据见 <code>quarterly_plans.xlsx</code>。
+  </footer>
+</div>
+
+<script>
+(function () {
+  var DATA = {
+    "5Y":  {
+      n: 70, weekday: [4,3,39,4,20], dayBuckets: [18,32,20], qMedian: 3, first: 22, reissue: 48, color: "var(--series-5y)",
+      avgPerMonth: [1.0,1.0,1.0,1.0,1.0,1.0,1.29,1.14,1.14,1.0,1.0,1.0],
+      qInYearAvg: [3.0,3.0,3.57,3.0]
+    },
+    "10Y": {
+      n: 96, weekday: [8,10,38,9,31], dayBuckets: [19,39,38], qMedian: 3, first: 25, reissue: 71, color: "var(--series-10y)",
+      avgPerMonth: [1.0,1.0,1.0,1.2,1.4,1.4,2.57,1.57,1.71,1.33,1.33,1.17],
+      qInYearAvg: [3.0,4.0,5.86,3.83]
+    },
+    "30Y": {
+      n: 83, weekday: [3,3,14,4,59], dayBuckets: [37,30,16], qMedian: 3, first: 16, reissue: 67, color: "var(--series-30y)",
+      avgPerMonth: [1.0,1.0,1.0,1.4,1.5,1.5,1.43,1.43,1.71,1.33,1.0,1.0],
+      qInYearAvg: [3.0,3.8,4.57,3.33]
+    }
+  };
+  var WEEKDAY_LABELS = ["一","二","三","四","五"];
+  var BUCKET_LABELS = ["上旬\n1–10日","中旬\n11–20日","下旬\n21–31日"];
+  var MONTH_LABELS = ["1","2","3","4","5","6","7","8","9","10","11","12"];
+  var Q_LABELS = ["Q1\n1–3月","Q2\n4–6月","Q3\n7–9月","Q4\n10–12月"];
+
+  var PLAN_VS_ACTUAL = {
+    coverage: ["2025-11-05", "2026-07-28"],
+    "5Y": {
+      planned: ["2025-11-19","2025-12-19","2026-01-23","2026-02-25","2026-03-18","2026-04-14","2026-05-22","2026-06-17","2026-07-08","2026-07-24"],
+      actual:  ["2025-11-19","2025-12-19","2026-01-23","2026-02-25","2026-03-18","2026-04-14","2026-05-22","2026-06-17","2026-07-24"]
+    },
+    "10Y": {
+      planned: ["2025-11-14","2025-12-12","2026-01-09","2026-02-24","2026-03-20","2026-04-01","2026-04-22","2026-05-14","2026-05-25","2026-06-10","2026-06-22","2026-07-08","2026-07-14","2026-07-22","2026-07-24"],
+      actual:  ["2025-11-14","2025-12-12","2026-01-09","2026-02-24","2026-03-20","2026-04-01","2026-04-22","2026-05-14","2026-05-25","2026-06-10","2026-06-22","2026-07-08","2026-07-22"]
+    },
+    "30Y": {
+      planned: ["2025-11-14","2025-12-05","2026-01-14","2026-02-06","2026-03-06","2026-04-03","2026-04-24","2026-05-08","2026-05-20","2026-06-03","2026-06-24","2026-07-03","2026-07-15"],
+      actual:  ["2025-11-14","2025-12-05","2026-01-14","2026-02-06","2026-03-06","2026-04-03","2026-04-24","2026-05-08","2026-05-20","2026-06-03","2026-06-24","2026-07-03","2026-07-15"]
+    }
+  };
+
+  var SERIES_PALETTE = ["#c98a2e", "#3d6b6e", "#9a3324", "#6b5b95", "#4f8a3d", "#2f6690", "#a15c9e", "#8a6d3b"];
+
+  var EVENT_DATA = {
+    "5Y": {
+      events: [
+        {bid_date:"2025-11-19",series_key:"R20",issue_no:20,reissue_no:1,amount:990.0,is_special:false,label:"25附息20续1"},
+        {bid_date:"2025-12-19",series_key:"R20",issue_no:20,reissue_no:2,amount:990.0,is_special:false,label:"25附息20续2"},
+        {bid_date:"2026-01-23",series_key:"R3",issue_no:3,reissue_no:0,amount:1500.0,is_special:false,label:"26附息3"},
+        {bid_date:"2026-02-25",series_key:"R3",issue_no:3,reissue_no:1,amount:1200.0,is_special:false,label:"26附息3续1"},
+        {bid_date:"2026-03-18",series_key:"R3",issue_no:3,reissue_no:2,amount:1550.0,is_special:false,label:"26附息3续2"},
+        {bid_date:"2026-04-14",series_key:"R8",issue_no:8,reissue_no:0,amount:1400.0,is_special:false,label:"26附息8"},
+        {bid_date:"2026-05-22",series_key:"R8",issue_no:8,reissue_no:1,amount:1500.0,is_special:false,label:"26附息8续1"},
+        {bid_date:"2026-06-17",series_key:"R8",issue_no:8,reissue_no:2,amount:1300.0,is_special:false,label:"26附息8续2"},
+        {bid_date:"2026-07-24",series_key:"R15",issue_no:15,reissue_no:0,amount:1300.0,is_special:false,label:"26附息15"}
+      ],
+      seriesTotals: [
+        {series_key:"R20",total:1980.0,is_special:false,note:"首发早于数据窗口，本图只含续2次"},
+        {series_key:"R3",total:4250.0,is_special:false},
+        {series_key:"R8",total:4200.0,is_special:false},
+        {series_key:"R15",total:1300.0,is_special:false,note:"仅首发，窗口内尚无续发"}
+      ],
+      grandTotal: 11730.0, grandRoutine: 11730.0, grandSpecial: 0.0
+    },
+    "10Y": {
+      events: [
+        {bid_date:"2025-11-14",series_key:"R22",issue_no:22,reissue_no:0,amount:1190.0,is_special:false,label:"25附息22"},
+        {bid_date:"2025-12-12",series_key:"R22",issue_no:22,reissue_no:1,amount:1190.0,is_special:false,label:"25附息22续1"},
+        {bid_date:"2025-12-12",series_key:"S1",issue_no:1,reissue_no:0,amount:4000.0,is_special:true,label:"25特别1"},
+        {bid_date:"2026-01-09",series_key:"R22",issue_no:22,reissue_no:2,amount:1800.0,is_special:false,label:"26附息22续2"},
+        {bid_date:"2026-02-24",series_key:"R5",issue_no:5,reissue_no:0,amount:1350.0,is_special:false,label:"26附息5"},
+        {bid_date:"2026-03-20",series_key:"R5",issue_no:5,reissue_no:1,amount:1850.0,is_special:false,label:"26附息5续1"},
+        {bid_date:"2026-04-01",series_key:"R5",issue_no:5,reissue_no:2,amount:900.0,is_special:false,label:"26附息5续2"},
+        {bid_date:"2026-04-22",series_key:"R5",issue_no:5,reissue_no:3,amount:900.0,is_special:false,label:"26附息5续3"},
+        {bid_date:"2026-05-14",series_key:"R10",issue_no:10,reissue_no:0,amount:900.0,is_special:false,label:"26附息10"},
+        {bid_date:"2026-05-25",series_key:"R10",issue_no:10,reissue_no:1,amount:900.0,is_special:false,label:"26附息10续1"},
+        {bid_date:"2026-06-10",series_key:"R10",issue_no:10,reissue_no:2,amount:900.0,is_special:false,label:"26附息10续2"},
+        {bid_date:"2026-06-22",series_key:"R10",issue_no:10,reissue_no:3,amount:900.0,is_special:false,label:"26附息10续3"},
+        {bid_date:"2026-07-08",series_key:"R10",issue_no:10,reissue_no:4,amount:900.0,is_special:false,label:"26附息10续4"},
+        {bid_date:"2026-07-22",series_key:"R10",issue_no:10,reissue_no:5,amount:900.0,is_special:false,label:"26附息10续5"}
+      ],
+      seriesTotals: [
+        {series_key:"R22",total:4180.0,is_special:false},
+        {series_key:"S1",total:4000.0,is_special:true,note:"到期续作特别国债，定向发行"},
+        {series_key:"R5",total:5000.0,is_special:false},
+        {series_key:"R10",total:5400.0,is_special:false,note:"窗口内已续发5次，仍在滚动加发中"}
+      ],
+      grandTotal: 18580.0, grandRoutine: 14580.0, grandSpecial: 4000.0
+    },
+    "30Y": {
+      events: [
+        {bid_date:"2025-11-14",series_key:"R2",issue_no:2,reissue_no:4,amount:270.0,is_special:false,label:"25附息2续4"},
+        {bid_date:"2025-12-05",series_key:"R2",issue_no:2,reissue_no:5,amount:270.0,is_special:false,label:"25附息2续5"},
+        {bid_date:"2026-01-14",series_key:"R2",issue_no:2,reissue_no:0,amount:320.0,is_special:false,label:"26附息2"},
+        {bid_date:"2026-02-06",series_key:"R2",issue_no:2,reissue_no:1,amount:320.0,is_special:false,label:"26附息2续1"},
+        {bid_date:"2026-03-06",series_key:"R2",issue_no:2,reissue_no:2,amount:340.0,is_special:false,label:"26附息2续2"},
+        {bid_date:"2026-04-03",series_key:"R2",issue_no:2,reissue_no:3,amount:240.0,is_special:false,label:"26附息2续3"},
+        {bid_date:"2026-04-24",series_key:"S2",issue_no:2,reissue_no:0,amount:850.0,is_special:true,label:"26特别2"},
+        {bid_date:"2026-05-08",series_key:"S2",issue_no:2,reissue_no:1,amount:850.0,is_special:true,label:"26特别2续1"},
+        {bid_date:"2026-05-20",series_key:"S2",issue_no:2,reissue_no:2,amount:850.0,is_special:true,label:"26特别2续2"},
+        {bid_date:"2026-06-03",series_key:"S2",issue_no:2,reissue_no:3,amount:850.0,is_special:true,label:"26特别2续3"},
+        {bid_date:"2026-06-24",series_key:"S4",issue_no:4,reissue_no:0,amount:850.0,is_special:true,label:"26特别4"},
+        {bid_date:"2026-07-03",series_key:"S4",issue_no:4,reissue_no:1,amount:800.0,is_special:true,label:"26特别4续1"},
+        {bid_date:"2026-07-15",series_key:"S4",issue_no:4,reissue_no:2,amount:800.0,is_special:true,label:"26特别4续2"}
+      ],
+      seriesTotals: [
+        {series_key:"R2",total:1760.0,is_special:false,note:"首发早于数据窗口，本图从续4起"},
+        {series_key:"S2",total:3400.0,is_special:true,note:"超长期特别国债二期"},
+        {series_key:"S4",total:2450.0,is_special:true,note:"超长期特别国债四期，窗口内仍在续发"}
+      ],
+      grandTotal: 7610.0, grandRoutine: 1760.0, grandSpecial: 5850.0
+    }
+  };
+
+  var SPECIAL_DATA = {
+    coverage: ["2025-12-12", "2026-07-15"],
+    events: [
+      {bid_date:"2025-12-12",term:"15Y",series_key:"15Y_2",reissue_no:0,amount:3500.0,program:"到期续作特别国债",label:"25特别2"},
+      {bid_date:"2025-12-12",term:"10Y",series_key:"10Y_1",reissue_no:0,amount:4000.0,program:"到期续作特别国债",label:"25特别1"},
+      {bid_date:"2026-04-24",term:"20Y",series_key:"20Y_1",reissue_no:0,amount:340.0,program:"超长期特别国债",label:"26特别1"},
+      {bid_date:"2026-04-24",term:"30Y",series_key:"30Y_2",reissue_no:0,amount:850.0,program:"超长期特别国债",label:"26特别2"},
+      {bid_date:"2026-05-06",term:"50Y",series_key:"50Y_3",reissue_no:0,amount:450.0,program:"超长期特别国债",label:"26特别3"},
+      {bid_date:"2026-05-08",term:"30Y",series_key:"30Y_2",reissue_no:1,amount:850.0,program:"超长期特别国债",label:"26特别2续1"},
+      {bid_date:"2026-05-13",term:"20Y",series_key:"20Y_1",reissue_no:1,amount:340.0,program:"超长期特别国债",label:"26特别1续1"},
+      {bid_date:"2026-05-20",term:"30Y",series_key:"30Y_2",reissue_no:2,amount:850.0,program:"超长期特别国债",label:"26特别2续2"},
+      {bid_date:"2026-06-03",term:"30Y",series_key:"30Y_2",reissue_no:3,amount:850.0,program:"超长期特别国债",label:"26特别2续3"},
+      {bid_date:"2026-06-05",term:"20Y",series_key:"20Y_1",reissue_no:2,amount:340.0,program:"超长期特别国债",label:"26特别1续2"},
+      {bid_date:"2026-06-24",term:"30Y",series_key:"30Y_4",reissue_no:0,amount:850.0,program:"超长期特别国债",label:"26特别4"},
+      {bid_date:"2026-07-03",term:"30Y",series_key:"30Y_4",reissue_no:1,amount:800.0,program:"超长期特别国债",label:"26特别4续1"},
+      {bid_date:"2026-07-14",term:"20Y",series_key:"20Y_5",reissue_no:0,amount:300.0,program:"超长期特别国债",label:"26特别5"},
+      {bid_date:"2026-07-15",term:"30Y",series_key:"30Y_4",reissue_no:2,amount:800.0,program:"超长期特别国债",label:"26特别4续2"}
+    ],
+    seriesTotals: [
+      {series_key:"10Y_1", term:"10Y", total:4000.0, program:"到期续作特别国债", n:1},
+      {series_key:"15Y_2", term:"15Y", total:3500.0, program:"到期续作特别国债", n:1},
+      {series_key:"20Y_1", term:"20Y", total:1020.0, program:"超长期特别国债", n:3},
+      {series_key:"30Y_2", term:"30Y", total:3400.0, program:"超长期特别国债", n:4},
+      {series_key:"50Y_3", term:"50Y", total:450.0, program:"超长期特别国债", n:1},
+      {series_key:"30Y_4", term:"30Y", total:2450.0, program:"超长期特别国债", n:3},
+      {series_key:"20Y_5", term:"20Y", total:300.0, program:"超长期特别国债", n:1}
+    ],
+    grandTotal: 15120.0
+  };
+
+  function svgEl(tag, attrs) {
+    var e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function text(x, y, str, cls, extra) {
+    var t = svgEl("text", Object.assign({ x: x, y: y, class: cls || "" }, extra || {}));
+    t.textContent = str;
+    return t;
+  }
+
+  // ---- bar chart builder: vertical bars, baseline at bottom ----
+  function barChart(opts) {
+    var w = opts.width, h = opts.height, labels = opts.labels, values = opts.values,
+        color = opts.color, max = opts.max || Math.max.apply(null, values),
+        padTop = 20, padBottom = opts.padBottom || 26, padSide = 4,
+        fmt = opts.fmt || function (v) { return v; },
+        gap = opts.gap == null ? 10 : opts.gap,
+        valueFontSize = opts.valueFontSize || 12,
+        labelFontSize = opts.labelFontSize || 11,
+        highlightIdx = opts.highlightIdx;
+    var innerH = h - padTop - padBottom;
+    var n = values.length;
+    var barW = (w - padSide * 2 - gap * (n - 1)) / n;
+    var svg = svgEl("svg", { width: w, height: h, viewBox: "0 0 " + w + " " + h });
+
+    // gridlines (3 horizontal guides)
+    [0.5, 1].forEach(function (frac) {
+      var y = padTop + innerH * (1 - frac);
+      svg.appendChild(svgEl("line", { x1: padSide, x2: w - padSide, y1: y, y2: y, class: "gridline" }));
+    });
+
+    values.forEach(function (v, i) {
+      var x = padSide + i * (barW + gap);
+      var barH = max > 0 ? (v / max) * innerH : 0;
+      var y = padTop + innerH - barH;
+      var r = Math.min(4, barW / 2);
+      var isPeak = highlightIdx != null && i === highlightIdx;
+      var rect = svgEl("rect", {
+        x: x, y: y, width: barW, height: Math.max(barH, 1.5),
+        rx: r, ry: r, style: "fill:" + color, opacity: (highlightIdx == null || isPeak) ? 1 : 0.45
+      });
+      svg.appendChild(rect);
+      if (v > 0) {
+        svg.appendChild(text(x + barW / 2, y - 6, fmt(v), "bar-value", { "text-anchor": "middle", "font-size": valueFontSize }));
+      }
+      var lbl = labels[i].split("\n");
+      lbl.forEach(function (line, li) {
+        svg.appendChild(text(x + barW / 2, padTop + innerH + 14 + li * 11, line,
+          "axis-label", { "text-anchor": "middle", "font-size": labelFontSize }));
+      });
+    });
+    return svg;
+  }
+
+  // ---- KPI row ----
+  var kpiRow = document.getElementById("kpiRow");
+  var totalN = DATA["5Y"].n + DATA["10Y"].n + DATA["30Y"].n;
+  var kpis = [
+    { label: "计划-实际招标日吻合率", value: "9/9 · 14/14 · 13/13", unit: "", note: "5Y/10Y/30Y 实际招标全部落在计划公告标注的当天" },
+    { label: "三期限合计去重样本", value: totalN, unit: "条招标日期" },
+    { label: "5Y / 10Y / 30Y 季度中位数", value: "3 / 3 / 3", unit: "次每季度", note: "三个期限典型节奏一致" },
+    { label: "招标日集中在", value: "周五 · 周三", unit: "", note: "周末样本为零" },
+    { label: "首发 : 续发 合计比例", value: "1 : 3.0", unit: "", note: "约每季度1次首发+2次续发" }
+  ];
+  kpis.forEach(function (k) {
+    var div = document.createElement("div");
+    div.className = "kpi";
+    div.innerHTML = '<div class="label">' + k.label + '</div>' +
+      '<div class="value">' + k.value + (k.unit ? '<span class="unit">' + k.unit + '</span>' : '') + '</div>' +
+      (k.note ? '<div class="note">' + k.note + '</div>' : '');
+    kpiRow.appendChild(div);
+  });
+
+  // ---- plan-vs-actual timeline ----
+  (function renderPlanVsActual() {
+    var body = document.getElementById("planVsActualBody");
+    var covStart = new Date(PLAN_VS_ACTUAL.coverage[0]);
+    var covEnd = new Date(PLAN_VS_ACTUAL.coverage[1]);
+    var span = covEnd - covStart;
+
+    ["5Y", "10Y", "30Y"].forEach(function (term) {
+      var d = PLAN_VS_ACTUAL[term];
+      var actualSet = {};
+      d.actual.forEach(function (s) { actualSet[s] = true; });
+      var matched = d.planned.filter(function (s) { return actualSet[s]; }).length;
+
+      var row = document.createElement("div");
+      row.className = "timeline-row";
+
+      var termEl = document.createElement("div");
+      termEl.className = "timeline-term";
+      termEl.style.color = DATA[term].color;
+      termEl.textContent = term;
+      row.appendChild(termEl);
+
+      var trackWrap = document.createElement("div");
+      trackWrap.className = "timeline-track";
+      var w = 900, h = 34, midY = 20;
+      var svg = svgEl("svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h, style: "max-width:" + w + "px;display:block" });
+      svg.appendChild(svgEl("line", { x1: 0, x2: w, y1: midY, y2: midY, class: "gridline" }));
+
+      d.planned.forEach(function (s) {
+        var x = ((new Date(s) - covStart) / span) * w;
+        var hasActual = !!actualSet[s];
+        svg.appendChild(svgEl("circle", {
+          cx: x, cy: midY, r: hasActual ? 6 : 5,
+          style: hasActual ? ("fill:" + DATA[term].color) : "fill:none",
+          stroke: hasActual ? "none" : "var(--ink-muted)", "stroke-width": hasActual ? 0 : 1.5,
+          "stroke-dasharray": hasActual ? "0" : "2,2"
+        }));
+      });
+      trackWrap.appendChild(svg);
+      row.appendChild(trackWrap);
+
+      var matchEl = document.createElement("div");
+      matchEl.className = "timeline-match";
+      matchEl.innerHTML = "<b>" + matched + "/" + d.planned.length + "</b> 命中";
+      row.appendChild(matchEl);
+
+      body.appendChild(row);
+    });
+
+    var note = document.createElement("p");
+    note.className = "section-note";
+    note.style.marginTop = "10px";
+    note.innerHTML = "空心虚线圆圈＝计划公告中标注但当前数据窗口内暂无对应实际公告的日期（集中在数据窗口最早/最新几天，属采集边界，" +
+      "而非真实的计划变更——例如 2026-07-24 之后的招标其实际发行公告可能尚未发布）。";
+    body.appendChild(note);
+  })();
+
+  // ---- issuance rhythm + volume timeline (bubble = one auction, sized by amount) ----
+  (function renderTimeline() {
+    var body = document.getElementById("timelineBody");
+    var covStart = new Date(PLAN_VS_ACTUAL.coverage[0]);
+    var covEnd = new Date(PLAN_VS_ACTUAL.coverage[1]);
+    var span = covEnd - covStart;
+    var w = 1080;
+
+    ["5Y", "10Y", "30Y"].forEach(function (term) {
+      var td = EVENT_DATA[term];
+      var seriesOrder = td.seriesTotals.map(function (s) { return s.series_key; });
+      var seriesColor = {};
+      seriesOrder.forEach(function (k, i) { seriesColor[k] = SERIES_PALETTE[i % SERIES_PALETTE.length]; });
+      var maxAmt = Math.max.apply(null, td.events.map(function (e) { return e.amount; }));
+      var minR = 5, maxR = 15;
+      function radius(amt) { return minR + (maxR - minR) * Math.sqrt(amt / maxAmt); }
+
+      var block = document.createElement("div");
+      block.className = "lane-block";
+
+      var head = document.createElement("div");
+      head.className = "lane-head";
+      head.innerHTML = '<span class="term" style="color:' + DATA[term].color + '">' + term + '</span>' +
+        '<span class="totals">窗口内累计 <b style="color:var(--ink-primary)">' + td.grandTotal.toLocaleString() + ' 亿元</b>' +
+        (td.grandSpecial > 0 ? '（常规 ' + td.grandRoutine.toLocaleString() + ' + 特别国债 ' + td.grandSpecial.toLocaleString() + '）' : '') +
+        '</span>';
+      block.appendChild(head);
+
+      var h = 70, midY = 40;
+      var svg = svgEl("svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h, style: "max-width:" + w + "px;display:block" });
+      svg.appendChild(svgEl("line", { x1: 4, x2: w - 4, y1: midY, y2: midY, class: "gridline" }));
+
+      // month tick labels
+      var cursor = new Date(covStart.getFullYear(), covStart.getMonth(), 1);
+      while (cursor <= covEnd) {
+        var x = ((cursor - covStart) / span) * (w - 8) + 4;
+        if (cursor >= covStart) {
+          svg.appendChild(svgEl("line", { x1: x, x2: x, y1: midY - 3, y2: midY + 3, class: "gridline" }));
+          svg.appendChild(text(x, h - 6, (cursor.getMonth() + 1) + "月", "axis-label", { "text-anchor": "middle", "font-size": "9.5" }));
+        }
+        cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+      }
+
+      // connecting line per series (first-issue -> reissues), then bubbles on top
+      seriesOrder.forEach(function (key) {
+        var pts = td.events.filter(function (e) { return e.series_key === key; })
+          .sort(function (a, b) { return new Date(a.bid_date) - new Date(b.bid_date); });
+        if (pts.length > 1) {
+          var d = pts.map(function (e, i) {
+            var x = ((new Date(e.bid_date) - covStart) / span) * (w - 8) + 4;
+            return (i === 0 ? "M" : "L") + x + "," + midY;
+          }).join(" ");
+          svg.appendChild(svgEl("path", { d: d, fill: "none", style: "stroke:" + seriesColor[key], "stroke-width": 1.5, opacity: 0.5 }));
+        }
+      });
+
+      td.events.forEach(function (e) {
+        var x = ((new Date(e.bid_date) - covStart) / span) * (w - 8) + 4;
+        var r = radius(e.amount);
+        var color = seriesColor[e.series_key];
+        if (e.is_special) {
+          svg.appendChild(svgEl("rect", {
+            x: x - r * 0.75, y: midY - r * 0.75, width: r * 1.5, height: r * 1.5,
+            transform: "rotate(45 " + x + " " + midY + ")",
+            style: "fill:" + color, opacity: 0.88
+          }));
+        } else {
+          svg.appendChild(svgEl("circle", { cx: x, cy: midY, r: r, style: "fill:" + color, opacity: 0.88 }));
+        }
+        if (e.reissue_no === 0) {
+          svg.appendChild(text(x, midY - r - 6, e.label, "axis-label", { "text-anchor": "middle", "font-size": "10" }));
+        }
+      });
+
+      var wrap = document.createElement("div");
+      wrap.appendChild(svg);
+      block.appendChild(wrap);
+
+      var legend = document.createElement("div");
+      legend.className = "lane-legend";
+      td.seriesTotals.forEach(function (s) {
+        var item = document.createElement("div");
+        item.className = "item";
+        item.innerHTML = '<span class="sw' + (s.is_special ? " special" : "") + '" style="background:' + seriesColor[s.series_key] + '"></span>' +
+          s.series_key.replace(/^[RS]/, "") + (s.is_special ? "期(特别)" : "期") + " 合计" + s.total.toLocaleString() + "亿" +
+          (s.note ? "（" + s.note + "）" : "");
+        legend.appendChild(item);
+      });
+      block.appendChild(legend);
+
+      body.appendChild(block);
+    });
+  })();
+
+  // ---- volume: stacked bar per series ----
+  (function renderVolume() {
+    var grid = document.createElement("div");
+    grid.className = "vol-grid";
+
+    ["5Y", "10Y", "30Y"].forEach(function (term) {
+      var td = EVENT_DATA[term];
+      var seriesOrder = td.seriesTotals.map(function (s) { return s.series_key; });
+      var seriesColor = {};
+      seriesOrder.forEach(function (k, i) { seriesColor[k] = SERIES_PALETTE[i % SERIES_PALETTE.length]; });
+
+      var card = document.createElement("div");
+      card.className = "vol-card";
+      card.innerHTML = '<div class="term" style="color:' + DATA[term].color + '">' + term + '</div>';
+
+      var w = 300, h = 190, padTop = 24, padBottom = 24, padSide = 6;
+      var innerH = h - padTop - padBottom;
+      var n = seriesOrder.length;
+      var gap = 14;
+      var barW = (w - padSide * 2 - gap * (n - 1)) / n;
+      var maxTotal = Math.max.apply(null, td.seriesTotals.map(function (s) { return s.total; }));
+      var svg = svgEl("svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h, style: "max-width:" + w + "px" });
+      [0.5, 1].forEach(function (frac) {
+        var y = padTop + innerH * (1 - frac);
+        svg.appendChild(svgEl("line", { x1: padSide, x2: w - padSide, y1: y, y2: y, class: "gridline" }));
+      });
+
+      seriesOrder.forEach(function (key, si) {
+        var x = padSide + si * (barW + gap);
+        var segs = td.events.filter(function (e) { return e.series_key === key; })
+          .sort(function (a, b) { return new Date(a.bid_date) - new Date(b.bid_date); });
+        var total = td.seriesTotals[si].total;
+        var totalH = (total / maxTotal) * innerH;
+        var yCursor = padTop + innerH;
+        segs.forEach(function (e, ei) {
+          var segH = (e.amount / total) * totalH;
+          yCursor -= segH;
+          var rect = svgEl("rect", {
+            x: x, y: yCursor, width: barW, height: Math.max(segH - 1, 0),
+            style: "fill:" + seriesColor[key], opacity: 0.55 + 0.45 * ((ei + 1) / segs.length)
+          });
+          svg.appendChild(rect);
+        });
+        svg.appendChild(text(x + barW / 2, padTop + innerH - totalH - 6, total.toLocaleString(), "bar-value",
+          { "text-anchor": "middle", "font-size": "11" }));
+        var lbl = key.replace(/^[RS]/, "") + "期" + (key[0] === "S" ? "(特)" : "");
+        svg.appendChild(text(x + barW / 2, padTop + innerH + 15, lbl, "axis-label", { "text-anchor": "middle", "font-size": "10.5" }));
+      });
+
+      card.appendChild(svg);
+      grid.appendChild(card);
+    });
+
+    document.getElementById("volumeBody").appendChild(grid);
+  })();
+
+  // ---- special-bond timeline (single lane, spans multiple terms) ----
+  (function renderSpecialTimeline() {
+    var body = document.getElementById("specialTimelineBody");
+    var covStart = new Date(SPECIAL_DATA.coverage[0]);
+    var covEnd = new Date(SPECIAL_DATA.coverage[1]);
+    var span = covEnd - covStart;
+    var w = 1080;
+    var seriesOrder = SPECIAL_DATA.seriesTotals.map(function (s) { return s.series_key; });
+    var seriesColor = {};
+    seriesOrder.forEach(function (k, i) { seriesColor[k] = SERIES_PALETTE[i % SERIES_PALETTE.length]; });
+    var maxAmt = Math.max.apply(null, SPECIAL_DATA.events.map(function (e) { return e.amount; }));
+    var minR = 6, maxR = 17;
+    function radius(amt) { return minR + (maxR - minR) * Math.sqrt(amt / maxAmt); }
+
+    var h = 130, midY = 70;
+    var svg = svgEl("svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h, style: "max-width:" + w + "px;display:block" });
+    svg.appendChild(svgEl("line", { x1: 4, x2: w - 4, y1: midY, y2: midY, class: "gridline" }));
+
+    var cursor = new Date(covStart.getFullYear(), covStart.getMonth(), 1);
+    while (cursor <= covEnd) {
+      var x0 = ((cursor - covStart) / span) * (w - 8) + 4;
+      if (cursor >= covStart) {
+        svg.appendChild(svgEl("line", { x1: x0, x2: x0, y1: midY - 3, y2: midY + 3, class: "gridline" }));
+        svg.appendChild(text(x0, h - 8, (cursor.getFullYear() % 100) + "/" + (cursor.getMonth() + 1), "axis-label", { "text-anchor": "middle", "font-size": "9.5" }));
+      }
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+    }
+
+    seriesOrder.forEach(function (key) {
+      var pts = SPECIAL_DATA.events.filter(function (e) { return e.series_key === key; })
+        .sort(function (a, b) { return new Date(a.bid_date) - new Date(b.bid_date); });
+      if (pts.length > 1) {
+        var d = pts.map(function (e, i) {
+          var x = ((new Date(e.bid_date) - covStart) / span) * (w - 8) + 4;
+          return (i === 0 ? "M" : "L") + x + "," + midY;
+        }).join(" ");
+        svg.appendChild(svgEl("path", { d: d, fill: "none", style: "stroke:" + seriesColor[key], "stroke-width": 1.5, opacity: 0.5 }));
+      }
+    });
+
+    // stagger bubble vertical offset slightly when two events share a date (e.g. 2025-12-12)
+    var seenAtDate = {};
+    SPECIAL_DATA.events.forEach(function (e) {
+      seenAtDate[e.bid_date] = (seenAtDate[e.bid_date] || 0) + 1;
+      var idxAtDate = seenAtDate[e.bid_date] - 1;
+      var x = ((new Date(e.bid_date) - covStart) / span) * (w - 8) + 4;
+      var y = midY + idxAtDate * 26;
+      var r = radius(e.amount);
+      var color = seriesColor[e.series_key];
+      var isRollover = e.program === "到期续作特别国债";
+      if (isRollover) {
+        var s = r * 1.15;
+        var pts = [x + "," + (y - s), (x - s * 0.87) + "," + (y + s * 0.5), (x + s * 0.87) + "," + (y + s * 0.5)].join(" ");
+        svg.appendChild(svgEl("polygon", { points: pts, style: "fill:" + color, opacity: 0.88 }));
+      } else {
+        svg.appendChild(svgEl("circle", { cx: x, cy: y, r: r, style: "fill:" + color, opacity: 0.88 }));
+      }
+      svg.appendChild(text(x, y - r - (idxAtDate ? 0 : 8), e.term, "axis-label", { "text-anchor": "middle", "font-size": "9.5", "font-weight": "700" }));
+      if (e.reissue_no === 0) {
+        svg.appendChild(text(x, y + r + 13, e.label, "axis-label", { "text-anchor": "middle", "font-size": "9.5" }));
+      }
+    });
+
+    body.appendChild(svg);
+
+    var legend = document.createElement("div");
+    legend.className = "lane-legend";
+    legend.style.marginTop = "10px";
+    var progLegend = document.createElement("div");
+    progLegend.className = "item";
+    progLegend.innerHTML = '<svg width="11" height="11" style="flex:none"><polygon points="5.5,1 10,9.5 1,9.5" style="fill:var(--ink-muted)"></polygon></svg>到期续作特别国债(定向,一次性) &nbsp;&nbsp; <svg width="10" height="10" style="flex:none"><circle cx="5" cy="5" r="5" style="fill:var(--ink-muted)"></circle></svg>超长期特别国债(常态化,首发+续发)';
+    legend.appendChild(progLegend);
+    SPECIAL_DATA.seriesTotals.forEach(function (s) {
+      var item = document.createElement("div");
+      item.className = "item";
+      item.innerHTML = '<span class="sw" style="background:' + seriesColor[s.series_key] + '"></span>' +
+        s.term + '-' + s.series_key.split("_")[1] + '期 合计' + s.total.toLocaleString() + '亿(' + s.n + '次)';
+      legend.appendChild(item);
+    });
+    body.appendChild(legend);
+  })();
+
+  // ---- special-bond volume: stacked bar per series ----
+  (function renderSpecialVolume() {
+    document.getElementById("specialGrandTotal").textContent = SPECIAL_DATA.grandTotal.toLocaleString();
+    var seriesOrder = SPECIAL_DATA.seriesTotals.map(function (s) { return s.series_key; });
+    var seriesColor = {};
+    seriesOrder.forEach(function (k, i) { seriesColor[k] = SERIES_PALETTE[i % SERIES_PALETTE.length]; });
+
+    var w = 1080, h = 230, padTop = 26, padBottom = 34, padSide = 8, gap = 20;
+    var n = seriesOrder.length;
+    var barW = (w - padSide * 2 - gap * (n - 1)) / n;
+    var maxTotal = Math.max.apply(null, SPECIAL_DATA.seriesTotals.map(function (s) { return s.total; }));
+    var innerH = h - padTop - padBottom;
+    var svg = svgEl("svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h, style: "max-width:" + w + "px" });
+    [0.5, 1].forEach(function (frac) {
+      var y = padTop + innerH * (1 - frac);
+      svg.appendChild(svgEl("line", { x1: padSide, x2: w - padSide, y1: y, y2: y, class: "gridline" }));
+    });
+
+    seriesOrder.forEach(function (key, si) {
+      var x = padSide + si * (barW + gap);
+      var s = SPECIAL_DATA.seriesTotals[si];
+      var segs = SPECIAL_DATA.events.filter(function (e) { return e.series_key === key; })
+        .sort(function (a, b) { return new Date(a.bid_date) - new Date(b.bid_date); });
+      var totalH = (s.total / maxTotal) * innerH;
+      var yCursor = padTop + innerH;
+      segs.forEach(function (e, ei) {
+        var segH = (e.amount / s.total) * totalH;
+        yCursor -= segH;
+        svg.appendChild(svgEl("rect", {
+          x: x, y: yCursor, width: barW, height: Math.max(segH - 1, 0),
+          style: "fill:" + seriesColor[key], opacity: 0.55 + 0.45 * ((ei + 1) / segs.length)
+        }));
+      });
+      svg.appendChild(text(x + barW / 2, padTop + innerH - totalH - 6, s.total.toLocaleString(), "bar-value",
+        { "text-anchor": "middle", "font-size": "11.5" }));
+      svg.appendChild(text(x + barW / 2, padTop + innerH + 16, s.term, "axis-label", { "text-anchor": "middle", "font-size": "12", "font-weight": "700" }));
+      svg.appendChild(text(x + barW / 2, padTop + innerH + 28, s.series_key.split("_")[1] + "期", "axis-label", { "text-anchor": "middle", "font-size": "10" }));
+    });
+
+    document.getElementById("specialVolumeBody").appendChild(svg);
+  })();
+
+  // ---- tenor cards ----
+  var grid = document.getElementById("tenorGrid");
+  var maxWeekday = Math.max.apply(null, ["5Y","10Y","30Y"].map(function(t){ return Math.max.apply(null, DATA[t].weekday); }));
+  var maxBucket = Math.max.apply(null, ["5Y","10Y","30Y"].map(function(t){ return Math.max.apply(null, DATA[t].dayBuckets); }));
+
+  ["5Y", "10Y", "30Y"].forEach(function (term) {
+    var d = DATA[term];
+    var card = document.createElement("div");
+    card.className = "tenor-card";
+
+    var head = document.createElement("div");
+    head.className = "tenor-head";
+    head.innerHTML =
+      '<div class="tenor-name"><span class="dot" style="background:' + d.color + '"></span>' +
+      '<span class="label">' + term + '</span></div>' +
+      '<span class="n">n = ' + d.n + '</span>';
+    card.appendChild(head);
+
+    var wdBlock = document.createElement("div");
+    wdBlock.className = "chart-block";
+    wdBlock.innerHTML = '<div class="chart-label">招标日星期分布（周一至周五，周末样本为零已省略）</div>';
+    wdBlock.appendChild(barChart({ width: 296, height: 118, labels: WEEKDAY_LABELS, values: d.weekday, color: d.color, max: maxWeekday }));
+    card.appendChild(wdBlock);
+
+    var bkBlock = document.createElement("div");
+    bkBlock.className = "chart-block";
+    bkBlock.innerHTML = '<div class="chart-label">月内时点分布</div>';
+    bkBlock.appendChild(barChart({ width: 296, height: 118, labels: BUCKET_LABELS, values: d.dayBuckets, color: d.color, max: maxBucket }));
+    card.appendChild(bkBlock);
+
+    var statPair = document.createElement("div");
+    statPair.className = "stat-pair";
+    statPair.innerHTML =
+      '<div class="stat-box"><div class="k">季度节奏（中位数）</div><div class="v">' + d.qMedian + ' <small>次/季度</small></div></div>' +
+      '<div class="stat-box"><div class="k">首发 : 续发</div><div class="v">' + d.first + ' : ' + d.reissue + '</div></div>';
+    card.appendChild(statPair);
+
+    var total = d.first + d.reissue;
+    var ratioWrap = document.createElement("div");
+    ratioWrap.innerHTML =
+      '<div class="ratio-bar"><span style="width:' + (d.first/total*100) + '%;background:' + d.color + '"></span>' +
+      '<span style="width:' + (d.reissue/total*100) + '%;background:var(--border-strong)"></span></div>' +
+      '<div class="ratio-caption"><span>首发 ' + Math.round(d.first/total*100) + '%</span><span>续发 ' + Math.round(d.reissue/total*100) + '%</span></div>';
+    card.appendChild(ratioWrap);
+
+    grid.appendChild(card);
+  });
+
+  // ---- reusable: legend + grouped (small-multiple) bar chart ----
+  function renderLegend(container) {
+    ["5Y", "10Y", "30Y"].forEach(function (term) {
+      var item = document.createElement("div");
+      item.className = "legend-item";
+      item.innerHTML = '<span class="sw" style="background:' + DATA[term].color + '"></span>' + term;
+      container.appendChild(item);
+    });
+  }
+
+  function groupedBarChart(container, groupLabels, getValue, opts) {
+    opts = opts || {};
+    var w = 1080, h = opts.height || 220, padTop = 16, padBottom = opts.padBottom || 32, padSide = 8;
+    var innerH = h - padTop - padBottom;
+    var groups = groupLabels.length;
+    var groupGap = opts.groupGap || 26, barGap = 4;
+    var groupW = (w - padSide * 2 - groupGap * (groups - 1)) / groups;
+    var barW = (groupW - barGap * 2) / 3;
+    var fmt = opts.fmt || function (v) { return v; };
+    var maxV = 0;
+    groupLabels.forEach(function (_, gi) {
+      ["5Y", "10Y", "30Y"].forEach(function (term) { maxV = Math.max(maxV, getValue(term, gi)); });
+    });
+    var svg = svgEl("svg", { width: "100%", height: h, viewBox: "0 0 " + w + " " + h, style: "max-width:" + w + "px" });
+
+    [0.5, 1].forEach(function (frac) {
+      var y = padTop + innerH * (1 - frac);
+      svg.appendChild(svgEl("line", { x1: padSide, x2: w - padSide, y1: y, y2: y, class: "gridline" }));
+    });
+
+    groupLabels.forEach(function (lbl, gi) {
+      var gx = padSide + gi * (groupW + groupGap);
+      ["5Y", "10Y", "30Y"].forEach(function (term, ti) {
+        var v = getValue(term, gi);
+        var bx = gx + ti * (barW + barGap);
+        var barH = maxV > 0 ? (v / maxV) * innerH : 0;
+        var by = padTop + innerH - barH;
+        svg.appendChild(svgEl("rect", { x: bx, y: by, width: barW, height: Math.max(barH, 1.5), rx: 3, ry: 3, style: "fill:" + DATA[term].color }));
+        if (v > 0) svg.appendChild(text(bx + barW / 2, by - 5, fmt(v), "bar-value", { "text-anchor": "middle", "font-size": "11" }));
+      });
+      var lines = lbl.split("\n");
+      lines.forEach(function (line, li) {
+        svg.appendChild(text(gx + groupW / 2, padTop + innerH + 20 + li * 13, line, "axis-label", { "text-anchor": "middle", "font-size": "12.5" }));
+      });
+    });
+
+    container.appendChild(svg);
+  }
+
+  renderLegend(document.getElementById("compareLegend"));
+  groupedBarChart(document.getElementById("compareChart"), WEEKDAY_LABELS.map(function (l) { return "周" + l; }),
+    function (term, gi) { return DATA[term].weekday[gi]; });
+
+  // ---- 年内月份分布：每期限一张12柱小图，标出峰值月 ----
+  var monthGrid = document.getElementById("monthGrid");
+  var maxMonth = Math.max.apply(null, ["5Y","10Y","30Y"].map(function(t){ return Math.max.apply(null, DATA[t].avgPerMonth); }));
+  ["5Y", "10Y", "30Y"].forEach(function (term) {
+    var d = DATA[term];
+    var peakIdx = d.avgPerMonth.indexOf(Math.max.apply(null, d.avgPerMonth));
+    var card = document.createElement("div");
+    card.className = "tenor-card";
+    var head = document.createElement("div");
+    head.className = "tenor-head";
+    head.innerHTML =
+      '<div class="tenor-name"><span class="dot" style="background:' + d.color + '"></span>' +
+      '<span class="label">' + term + '</span></div>' +
+      '<span class="n">峰值 ' + (peakIdx + 1) + '月</span>';
+    card.appendChild(head);
+
+    var block = document.createElement("div");
+    block.className = "chart-block";
+    block.innerHTML = '<div class="chart-label">每年该月平均招标次数（12个月）</div>';
+    block.appendChild(barChart({
+      width: 296, height: 130, labels: MONTH_LABELS, values: d.avgPerMonth, color: d.color, max: maxMonth,
+      fmt: function (v) { return v.toFixed(1); }, gap: 4, valueFontSize: 9.5, labelFontSize: 10, highlightIdx: peakIdx
+    }));
+    card.appendChild(block);
+    card.appendChild(Object.assign(document.createElement("div"), {
+      className: "month-peak", textContent: (peakIdx + 1) + "月平均 " + d.avgPerMonth[peakIdx].toFixed(1) + " 次，为全年最高"
+    }));
+    monthGrid.appendChild(card);
+  });
+
+  // ---- 自然季度对比 ----
+  renderLegend(document.getElementById("quarterLegend"));
+  groupedBarChart(document.getElementById("quarterChart"), Q_LABELS,
+    function (term, gi) { return DATA[term].qInYearAvg[gi]; },
+    { fmt: function (v) { return v.toFixed(1); }, groupGap: 40, height: 236, padBottom: 46 });
+
+  var q3Ratios = ["5Y", "10Y", "30Y"].map(function (term) {
+    return (DATA[term].qInYearAvg[2] / DATA[term].qInYearAvg[0]).toFixed(2);
+  });
+  document.getElementById("quarterCallout").innerHTML =
+    '<strong>Q3（7–9月）是全年招标最密集的自然季度</strong>——相对Q1（1–3月）的倍数：' +
+    '5Y ' + q3Ratios[0] + '× ／ 10Y ' + q3Ratios[1] + '× ／ 30Y ' + q3Ratios[2] + '×。' +
+    '10年期的季节性最强，Q3平均招标次数接近Q1的两倍；5年期最平稳，四个季度差异不大。';
+})();
+</script>
+
+</body>
+</html>
