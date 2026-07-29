@@ -133,8 +133,6 @@
   .findings ul { margin: 0; padding-left: 1.15em; color: var(--ink-secondary); font-size: 14px; line-height: 1.65; }
   .findings li { margin: 4px 0; }
   .findings li strong { color: var(--ink-primary); }
-  .guide-card { margin-bottom: 22px; }
-  header + .guide-card { margin-top: -8px; }
   html { scroll-behavior: smooth; scroll-padding-top: 16px; }
 
   .serif { font-family: "Songti SC", "STSong", Georgia, "Noto Serif SC", serif; }
@@ -296,7 +294,7 @@
   <header id="top">
     <div class="eyebrow">财政部国债发行公告数据集 · 季度/年度计划公告</div>
     <h1 class="serif">关键期限国债发行时间规律</h1>
-    <p class="sub">5年期、10年期、30年期记账式附息国债的招标日历特征：星期几招标、月内什么时候、每季度几次、首发与续发各占多少。数据来自财政部与中央结算公司（ChinaBond）两个来源的季度/年度发行计划公告，按"品种+期限+日期"去重后统计，与单期正式发行公告是两套不同口径（见页末说明）。</p>
+    <p class="sub">5年期、10年期、30年期记账式附息国债的招标日历特征：星期几招标、月内什么时候、每季度几次、首发与续发各占多少。数据来自财政部与中央结算公司（ChinaBond）两个来源的季度/年度发行计划公告，按"品种+期限+日期"去重后统计，与单期正式发行公告是两套不同口径（见页末说明）。怎么读这份数据：三个期限的招标日几乎全部落在周一至周五，样本中周六、周日为零，图中已省略。"月内时点"把每月拆成上/中/下旬（1–10日 / 11–20日 / 21–31日）三段，柱越高代表该期限越常在那个时间段招标。"季度节奏"里的中位数最能代表典型情况——三个期限的中位数都是每季度 3 次，通常对应"1 次首发 + 2 次续发"；均值会被个别样本量偏多的季度拉高，不代表常态。"年内节奏"和"自然季度对比"两节是同一现象的两种切法：前者看具体哪个月更活跃，后者把月份归并到公历季度，便于和发行计划的季度安排对照阅读。</p>
     <div class="meta-strip">
       <div class="meta-item"><span class="k">数据覆盖范围</span><span class="v">2020-07 至 2026-12</span></div>
       <div class="meta-item"><span class="k">计划公告数量</span><span class="v">87 份</span></div>
@@ -304,17 +302,6 @@
       <div class="meta-item"><span class="k">统计口径</span><span class="v">按期限+日期去重后的招标日期</span></div>
     </div>
   </header>
-
-  <div class="compare-card guide-card" id="howToRead">
-    <h2 class="section-title" style="margin-bottom:10px;">怎么读这份数据</h2>
-    <p class="section-note" style="margin:0; max-width:82ch;">
-      三个期限的招标日几乎全部落在周一至周五，样本中周六、周日为零，图中已省略。
-      "月内时点"把每月拆成上/中/下旬（1–10日 / 11–20日 / 21–31日）三段，柱越高代表该期限越常在那个时间段招标。
-      "季度节奏"里的中位数最能代表典型情况——三个期限的中位数都是每季度 3 次，通常对应"1 次首发 + 2 次续发"；
-      均值会被个别样本量偏多的季度拉高，不代表常态。"年内节奏"和"自然季度对比"两节是同一现象的两种切法：
-      前者看具体哪个月更活跃，后者把月份归并到公历季度，便于和发行计划的季度安排对照阅读。
-    </p>
-  </div>
 
   <section class="findings" id="findings">
     <h2 class="section-title">主要结论</h2>
