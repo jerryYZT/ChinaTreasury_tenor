@@ -317,152 +317,175 @@
     招标最密集，10年期尤其明显（Q3平均单月/单季次数比Q1高出近一倍），这与三季度国债发行计划通常安排更多续发行有关。<br/><br/>
     <strong>口径提醒：</strong>本页基于财政部每季度（部分年度另发年度计划）公布的《国债发行有关安排》滚动计划公告，
     是提前一个季度甚至一整年公布的日历指引；与"单期正式发行公告"（每期国债招标前数日单独发布，用于计算"提前几天公告"）
-    是两套不同节奏的公告体系，不可混同解读。完整字段定义见项目 <code>glossary.md</code>，逐期数据见 <code>quarterly_plans.xlsx</code>。
+    是两套不同节奏的公告体系，不可混同解读。完整字段定义见项目 <code>glossary.md</code>；本页图表数据外挂于 <code>data/*.csv</code>（GitHub raw / Pages 相对路径加载）。
   </footer>
 </div>
 
 <script>
 (function () {
-  var DATA = {
-    "5Y":  {
-      n: 70, weekday: [4,3,39,4,20], dayBuckets: [18,32,20], qMedian: 3, first: 22, reissue: 48, color: "var(--series-5y)",
-      avgPerMonth: [1.0,1.0,1.0,1.0,1.0,1.0,1.29,1.14,1.14,1.0,1.0,1.0],
-      qInYearAvg: [3.0,3.0,3.57,3.0]
-    },
-    "10Y": {
-      n: 96, weekday: [8,10,38,9,31], dayBuckets: [19,39,38], qMedian: 3, first: 25, reissue: 71, color: "var(--series-10y)",
-      avgPerMonth: [1.0,1.0,1.0,1.2,1.4,1.4,2.57,1.57,1.71,1.33,1.33,1.17],
-      qInYearAvg: [3.0,4.0,5.86,3.83]
-    },
-    "30Y": {
-      n: 83, weekday: [3,3,14,4,59], dayBuckets: [37,30,16], qMedian: 3, first: 16, reissue: 67, color: "var(--series-30y)",
-      avgPerMonth: [1.0,1.0,1.0,1.4,1.5,1.5,1.43,1.43,1.71,1.33,1.0,1.0],
-      qInYearAvg: [3.0,3.8,4.57,3.33]
-    }
-  };
   var WEEKDAY_LABELS = ["一","二","三","四","五"];
   var BUCKET_LABELS = ["上旬\n1–10日","中旬\n11–20日","下旬\n21–31日"];
   var MONTH_LABELS = ["1","2","3","4","5","6","7","8","9","10","11","12"];
   var Q_LABELS = ["Q1\n1–3月","Q2\n4–6月","Q3\n7–9月","Q4\n10–12月"];
-
-  var PLAN_VS_ACTUAL = {
-    coverage: ["2025-11-05", "2026-07-28"],
-    "5Y": {
-      planned: ["2025-11-19","2025-12-19","2026-01-23","2026-02-25","2026-03-18","2026-04-14","2026-05-22","2026-06-17","2026-07-08","2026-07-24"],
-      actual:  ["2025-11-19","2025-12-19","2026-01-23","2026-02-25","2026-03-18","2026-04-14","2026-05-22","2026-06-17","2026-07-24"]
-    },
-    "10Y": {
-      planned: ["2025-11-14","2025-12-12","2026-01-09","2026-02-24","2026-03-20","2026-04-01","2026-04-22","2026-05-14","2026-05-25","2026-06-10","2026-06-22","2026-07-08","2026-07-14","2026-07-22","2026-07-24"],
-      actual:  ["2025-11-14","2025-12-12","2026-01-09","2026-02-24","2026-03-20","2026-04-01","2026-04-22","2026-05-14","2026-05-25","2026-06-10","2026-06-22","2026-07-08","2026-07-22"]
-    },
-    "30Y": {
-      planned: ["2025-11-14","2025-12-05","2026-01-14","2026-02-06","2026-03-06","2026-04-03","2026-04-24","2026-05-08","2026-05-20","2026-06-03","2026-06-24","2026-07-03","2026-07-15"],
-      actual:  ["2025-11-14","2025-12-05","2026-01-14","2026-02-06","2026-03-06","2026-04-03","2026-04-24","2026-05-08","2026-05-20","2026-06-03","2026-06-24","2026-07-03","2026-07-15"]
-    }
-  };
-
   var SERIES_PALETTE = ["#c98a2e", "#3d6b6e", "#9a3324", "#6b5b95", "#4f8a3d", "#2f6690", "#a15c9e", "#8a6d3b"];
+  var TERM_COLOR = { "5Y": "var(--series-5y)", "10Y": "var(--series-10y)", "30Y": "var(--series-30y)" };
 
-  var EVENT_DATA = {
-    "5Y": {
-      events: [
-        {bid_date:"2025-11-19",series_key:"R20",issue_no:20,reissue_no:1,amount:990.0,is_special:false,label:"25附息20续1"},
-        {bid_date:"2025-12-19",series_key:"R20",issue_no:20,reissue_no:2,amount:990.0,is_special:false,label:"25附息20续2"},
-        {bid_date:"2026-01-23",series_key:"R3",issue_no:3,reissue_no:0,amount:1500.0,is_special:false,label:"26附息3"},
-        {bid_date:"2026-02-25",series_key:"R3",issue_no:3,reissue_no:1,amount:1200.0,is_special:false,label:"26附息3续1"},
-        {bid_date:"2026-03-18",series_key:"R3",issue_no:3,reissue_no:2,amount:1550.0,is_special:false,label:"26附息3续2"},
-        {bid_date:"2026-04-14",series_key:"R8",issue_no:8,reissue_no:0,amount:1400.0,is_special:false,label:"26附息8"},
-        {bid_date:"2026-05-22",series_key:"R8",issue_no:8,reissue_no:1,amount:1500.0,is_special:false,label:"26附息8续1"},
-        {bid_date:"2026-06-17",series_key:"R8",issue_no:8,reissue_no:2,amount:1300.0,is_special:false,label:"26附息8续2"},
-        {bid_date:"2026-07-24",series_key:"R15",issue_no:15,reissue_no:0,amount:1300.0,is_special:false,label:"26附息15"}
-      ],
-      seriesTotals: [
-        {series_key:"R20",total:1980.0,is_special:false,note:"首发早于数据窗口，本图只含续2次"},
-        {series_key:"R3",total:4250.0,is_special:false},
-        {series_key:"R8",total:4200.0,is_special:false},
-        {series_key:"R15",total:1300.0,is_special:false,note:"仅首发，窗口内尚无续发"}
-      ],
-      grandTotal: 11730.0, grandRoutine: 11730.0, grandSpecial: 0.0
-    },
-    "10Y": {
-      events: [
-        {bid_date:"2025-11-14",series_key:"R22",issue_no:22,reissue_no:0,amount:1190.0,is_special:false,label:"25附息22"},
-        {bid_date:"2025-12-12",series_key:"R22",issue_no:22,reissue_no:1,amount:1190.0,is_special:false,label:"25附息22续1"},
-        {bid_date:"2025-12-12",series_key:"S1",issue_no:1,reissue_no:0,amount:4000.0,is_special:true,label:"25特别1"},
-        {bid_date:"2026-01-09",series_key:"R22",issue_no:22,reissue_no:2,amount:1800.0,is_special:false,label:"26附息22续2"},
-        {bid_date:"2026-02-24",series_key:"R5",issue_no:5,reissue_no:0,amount:1350.0,is_special:false,label:"26附息5"},
-        {bid_date:"2026-03-20",series_key:"R5",issue_no:5,reissue_no:1,amount:1850.0,is_special:false,label:"26附息5续1"},
-        {bid_date:"2026-04-01",series_key:"R5",issue_no:5,reissue_no:2,amount:900.0,is_special:false,label:"26附息5续2"},
-        {bid_date:"2026-04-22",series_key:"R5",issue_no:5,reissue_no:3,amount:900.0,is_special:false,label:"26附息5续3"},
-        {bid_date:"2026-05-14",series_key:"R10",issue_no:10,reissue_no:0,amount:900.0,is_special:false,label:"26附息10"},
-        {bid_date:"2026-05-25",series_key:"R10",issue_no:10,reissue_no:1,amount:900.0,is_special:false,label:"26附息10续1"},
-        {bid_date:"2026-06-10",series_key:"R10",issue_no:10,reissue_no:2,amount:900.0,is_special:false,label:"26附息10续2"},
-        {bid_date:"2026-06-22",series_key:"R10",issue_no:10,reissue_no:3,amount:900.0,is_special:false,label:"26附息10续3"},
-        {bid_date:"2026-07-08",series_key:"R10",issue_no:10,reissue_no:4,amount:900.0,is_special:false,label:"26附息10续4"},
-        {bid_date:"2026-07-22",series_key:"R10",issue_no:10,reissue_no:5,amount:900.0,is_special:false,label:"26附息10续5"}
-      ],
-      seriesTotals: [
-        {series_key:"R22",total:4180.0,is_special:false},
-        {series_key:"S1",total:4000.0,is_special:true,note:"到期续作特别国债，定向发行"},
-        {series_key:"R5",total:5000.0,is_special:false},
-        {series_key:"R10",total:5400.0,is_special:false,note:"窗口内已续发5次，仍在滚动加发中"}
-      ],
-      grandTotal: 18580.0, grandRoutine: 14580.0, grandSpecial: 4000.0
-    },
-    "30Y": {
-      events: [
-        {bid_date:"2025-11-14",series_key:"R2",issue_no:2,reissue_no:4,amount:270.0,is_special:false,label:"25附息2续4"},
-        {bid_date:"2025-12-05",series_key:"R2",issue_no:2,reissue_no:5,amount:270.0,is_special:false,label:"25附息2续5"},
-        {bid_date:"2026-01-14",series_key:"R2",issue_no:2,reissue_no:0,amount:320.0,is_special:false,label:"26附息2"},
-        {bid_date:"2026-02-06",series_key:"R2",issue_no:2,reissue_no:1,amount:320.0,is_special:false,label:"26附息2续1"},
-        {bid_date:"2026-03-06",series_key:"R2",issue_no:2,reissue_no:2,amount:340.0,is_special:false,label:"26附息2续2"},
-        {bid_date:"2026-04-03",series_key:"R2",issue_no:2,reissue_no:3,amount:240.0,is_special:false,label:"26附息2续3"},
-        {bid_date:"2026-04-24",series_key:"S2",issue_no:2,reissue_no:0,amount:850.0,is_special:true,label:"26特别2"},
-        {bid_date:"2026-05-08",series_key:"S2",issue_no:2,reissue_no:1,amount:850.0,is_special:true,label:"26特别2续1"},
-        {bid_date:"2026-05-20",series_key:"S2",issue_no:2,reissue_no:2,amount:850.0,is_special:true,label:"26特别2续2"},
-        {bid_date:"2026-06-03",series_key:"S2",issue_no:2,reissue_no:3,amount:850.0,is_special:true,label:"26特别2续3"},
-        {bid_date:"2026-06-24",series_key:"S4",issue_no:4,reissue_no:0,amount:850.0,is_special:true,label:"26特别4"},
-        {bid_date:"2026-07-03",series_key:"S4",issue_no:4,reissue_no:1,amount:800.0,is_special:true,label:"26特别4续1"},
-        {bid_date:"2026-07-15",series_key:"S4",issue_no:4,reissue_no:2,amount:800.0,is_special:true,label:"26特别4续2"}
-      ],
-      seriesTotals: [
-        {series_key:"R2",total:1760.0,is_special:false,note:"首发早于数据窗口，本图从续4起"},
-        {series_key:"S2",total:3400.0,is_special:true,note:"超长期特别国债二期"},
-        {series_key:"S4",total:2450.0,is_special:true,note:"超长期特别国债四期，窗口内仍在续发"}
-      ],
-      grandTotal: 7610.0, grandRoutine: 1760.0, grandSpecial: 5850.0
+  // 外挂 CSV：Pages/本地 http 用相对路径 data/；可用 ?data=<url/> 指定 GitHub raw 目录。
+  // 双击 file:// 打开时不走 fetch，直接用下方 EMBEDDED_CSV 回退副本。
+  var GH_DATA = "https://raw.githubusercontent.com/jerryYZT/ChinaTreasury_tenor/cursor/key-tenor-timeline/data/";
+  var DATA_BASE = (function () {
+    var q = new URLSearchParams(location.search).get("data");
+    if (q) return q.replace(/\/?$/, "/");
+    return "data/";
+  })();
+
+  var EMBEDDED_CSV = {"meta.csv": "key,value\nplan_coverage_start,2025-11-05\nplan_coverage_end,2026-07-28\nspecial_coverage_start,2025-12-12\nspecial_coverage_end,2026-07-15\nspecial_grand_total,15120.0\n", "tenor_stats.csv": "term,n,wd_mon,wd_tue,wd_wed,wd_thu,wd_fri,bucket_early,bucket_mid,bucket_late,q_median,first,reissue,m01,m02,m03,m04,m05,m06,m07,m08,m09,m10,m11,m12,q1,q2,q3,q4\n5Y,70,4,3,39,4,20,18,32,20,3,22,48,1.0,1.0,1.0,1.0,1.0,1.0,1.29,1.14,1.14,1.0,1.0,1.0,3.0,3.0,3.57,3.0\n10Y,96,8,10,38,9,31,19,39,38,3,25,71,1.0,1.0,1.0,1.2,1.4,1.4,2.57,1.57,1.71,1.33,1.33,1.17,3.0,4.0,5.86,3.83\n30Y,83,3,3,14,4,59,37,30,16,3,16,67,1.0,1.0,1.0,1.4,1.5,1.5,1.43,1.43,1.71,1.33,1.0,1.0,3.0,3.8,4.57,3.33\n", "plan_vs_actual.csv": "term,kind,bid_date\n5Y,planned,2025-11-19\n5Y,planned,2025-12-19\n5Y,planned,2026-01-23\n5Y,planned,2026-02-25\n5Y,planned,2026-03-18\n5Y,planned,2026-04-14\n5Y,planned,2026-05-22\n5Y,planned,2026-06-17\n5Y,planned,2026-07-08\n5Y,planned,2026-07-24\n5Y,actual,2025-11-19\n5Y,actual,2025-12-19\n5Y,actual,2026-01-23\n5Y,actual,2026-02-25\n5Y,actual,2026-03-18\n5Y,actual,2026-04-14\n5Y,actual,2026-05-22\n5Y,actual,2026-06-17\n5Y,actual,2026-07-24\n10Y,planned,2025-11-14\n10Y,planned,2025-12-12\n10Y,planned,2026-01-09\n10Y,planned,2026-02-24\n10Y,planned,2026-03-20\n10Y,planned,2026-04-01\n10Y,planned,2026-04-22\n10Y,planned,2026-05-14\n10Y,planned,2026-05-25\n10Y,planned,2026-06-10\n10Y,planned,2026-06-22\n10Y,planned,2026-07-08\n10Y,planned,2026-07-14\n10Y,planned,2026-07-22\n10Y,planned,2026-07-24\n10Y,actual,2025-11-14\n10Y,actual,2025-12-12\n10Y,actual,2026-01-09\n10Y,actual,2026-02-24\n10Y,actual,2026-03-20\n10Y,actual,2026-04-01\n10Y,actual,2026-04-22\n10Y,actual,2026-05-14\n10Y,actual,2026-05-25\n10Y,actual,2026-06-10\n10Y,actual,2026-06-22\n10Y,actual,2026-07-08\n10Y,actual,2026-07-22\n30Y,planned,2025-11-14\n30Y,planned,2025-12-05\n30Y,planned,2026-01-14\n30Y,planned,2026-02-06\n30Y,planned,2026-03-06\n30Y,planned,2026-04-03\n30Y,planned,2026-04-24\n30Y,planned,2026-05-08\n30Y,planned,2026-05-20\n30Y,planned,2026-06-03\n30Y,planned,2026-06-24\n30Y,planned,2026-07-03\n30Y,planned,2026-07-15\n30Y,actual,2025-11-14\n30Y,actual,2025-12-05\n30Y,actual,2026-01-14\n30Y,actual,2026-02-06\n30Y,actual,2026-03-06\n30Y,actual,2026-04-03\n30Y,actual,2026-04-24\n30Y,actual,2026-05-08\n30Y,actual,2026-05-20\n30Y,actual,2026-06-03\n30Y,actual,2026-06-24\n30Y,actual,2026-07-03\n30Y,actual,2026-07-15\n", "events.csv": "term,bid_date,series_key,issue_no,reissue_no,amount,is_special,label\n5Y,2025-11-19,R20,20,1,990.0,0,25附息20续1\n5Y,2025-12-19,R20,20,2,990.0,0,25附息20续2\n5Y,2026-01-23,R3,3,0,1500.0,0,26附息3\n5Y,2026-02-25,R3,3,1,1200.0,0,26附息3续1\n5Y,2026-03-18,R3,3,2,1550.0,0,26附息3续2\n5Y,2026-04-14,R8,8,0,1400.0,0,26附息8\n5Y,2026-05-22,R8,8,1,1500.0,0,26附息8续1\n5Y,2026-06-17,R8,8,2,1300.0,0,26附息8续2\n5Y,2026-07-24,R15,15,0,1300.0,0,26附息15\n10Y,2025-11-14,R22,22,0,1190.0,0,25附息22\n10Y,2025-12-12,R22,22,1,1190.0,0,25附息22续1\n10Y,2025-12-12,S1,1,0,4000.0,1,25特别1\n10Y,2026-01-09,R22,22,2,1800.0,0,26附息22续2\n10Y,2026-02-24,R5,5,0,1350.0,0,26附息5\n10Y,2026-03-20,R5,5,1,1850.0,0,26附息5续1\n10Y,2026-04-01,R5,5,2,900.0,0,26附息5续2\n10Y,2026-04-22,R5,5,3,900.0,0,26附息5续3\n10Y,2026-05-14,R10,10,0,900.0,0,26附息10\n10Y,2026-05-25,R10,10,1,900.0,0,26附息10续1\n10Y,2026-06-10,R10,10,2,900.0,0,26附息10续2\n10Y,2026-06-22,R10,10,3,900.0,0,26附息10续3\n10Y,2026-07-08,R10,10,4,900.0,0,26附息10续4\n10Y,2026-07-22,R10,10,5,900.0,0,26附息10续5\n30Y,2025-11-14,R2,2,4,270.0,0,25附息2续4\n30Y,2025-12-05,R2,2,5,270.0,0,25附息2续5\n30Y,2026-01-14,R2,2,0,320.0,0,26附息2\n30Y,2026-02-06,R2,2,1,320.0,0,26附息2续1\n30Y,2026-03-06,R2,2,2,340.0,0,26附息2续2\n30Y,2026-04-03,R2,2,3,240.0,0,26附息2续3\n30Y,2026-04-24,S2,2,0,850.0,1,26特别2\n30Y,2026-05-08,S2,2,1,850.0,1,26特别2续1\n30Y,2026-05-20,S2,2,2,850.0,1,26特别2续2\n30Y,2026-06-03,S2,2,3,850.0,1,26特别2续3\n30Y,2026-06-24,S4,4,0,850.0,1,26特别4\n30Y,2026-07-03,S4,4,1,800.0,1,26特别4续1\n30Y,2026-07-15,S4,4,2,800.0,1,26特别4续2\n", "series_totals.csv": "term,series_key,total,is_special,note,grand_total,grand_routine,grand_special\n5Y,R20,1980.0,0,首发早于数据窗口，本图只含续2次,11730.0,11730.0,0.0\n5Y,R3,4250.0,0,,11730.0,11730.0,0.0\n5Y,R8,4200.0,0,,11730.0,11730.0,0.0\n5Y,R15,1300.0,0,仅首发，窗口内尚无续发,11730.0,11730.0,0.0\n10Y,R22,4180.0,0,,18580.0,14580.0,4000.0\n10Y,S1,4000.0,1,到期续作特别国债，定向发行,18580.0,14580.0,4000.0\n10Y,R5,5000.0,0,,18580.0,14580.0,4000.0\n10Y,R10,5400.0,0,窗口内已续发5次，仍在滚动加发中,18580.0,14580.0,4000.0\n30Y,R2,1760.0,0,首发早于数据窗口，本图从续4起,7610.0,1760.0,5850.0\n30Y,S2,3400.0,1,超长期特别国债二期,7610.0,1760.0,5850.0\n30Y,S4,2450.0,1,超长期特别国债四期，窗口内仍在续发,7610.0,1760.0,5850.0\n", "special_events.csv": "bid_date,term,series_key,reissue_no,amount,program,label\n2025-12-12,15Y,15Y_2,0,3500.0,到期续作特别国债,25特别2\n2025-12-12,10Y,10Y_1,0,4000.0,到期续作特别国债,25特别1\n2026-04-24,20Y,20Y_1,0,340.0,超长期特别国债,26特别1\n2026-04-24,30Y,30Y_2,0,850.0,超长期特别国债,26特别2\n2026-05-06,50Y,50Y_3,0,450.0,超长期特别国债,26特别3\n2026-05-08,30Y,30Y_2,1,850.0,超长期特别国债,26特别2续1\n2026-05-13,20Y,20Y_1,1,340.0,超长期特别国债,26特别1续1\n2026-05-20,30Y,30Y_2,2,850.0,超长期特别国债,26特别2续2\n2026-06-03,30Y,30Y_2,3,850.0,超长期特别国债,26特别2续3\n2026-06-05,20Y,20Y_1,2,340.0,超长期特别国债,26特别1续2\n2026-06-24,30Y,30Y_4,0,850.0,超长期特别国债,26特别4\n2026-07-03,30Y,30Y_4,1,800.0,超长期特别国债,26特别4续1\n2026-07-14,20Y,20Y_5,0,300.0,超长期特别国债,26特别5\n2026-07-15,30Y,30Y_4,2,800.0,超长期特别国债,26特别4续2\n", "special_series.csv": "series_key,term,total,program,n\n10Y_1,10Y,4000.0,到期续作特别国债,1\n15Y_2,15Y,3500.0,到期续作特别国债,1\n20Y_1,20Y,1020.0,超长期特别国债,3\n30Y_2,30Y,3400.0,超长期特别国债,4\n50Y_3,50Y,450.0,超长期特别国债,1\n30Y_4,30Y,2450.0,超长期特别国债,3\n20Y_5,20Y,300.0,超长期特别国债,1\n"};
+
+  var DATA, PLAN_VS_ACTUAL, EVENT_DATA, SPECIAL_DATA;
+
+  function parseCSV(text) {
+    var rows = [];
+    var i = 0, field = "", row = [], inQ = false;
+    text = text.replace(/^\uFEFF/, "");
+    while (i < text.length) {
+      var c = text[i];
+      if (inQ) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { field += '"'; i++; }
+          else inQ = false;
+        } else field += c;
+      } else if (c === '"') {
+        inQ = true;
+      } else if (c === ",") {
+        row.push(field); field = "";
+      } else if (c === "\n" || c === "\r") {
+        if (c === "\r" && text[i + 1] === "\n") i++;
+        row.push(field); field = "";
+        if (row.length > 1 || row[0] !== "") rows.push(row);
+        row = [];
+      } else {
+        field += c;
+      }
+      i++;
     }
-  };
+    if (field !== "" || row.length) { row.push(field); rows.push(row); }
+    if (!rows.length) return [];
+    var headers = rows[0];
+    return rows.slice(1).map(function (r) {
+      var o = {};
+      headers.forEach(function (h, idx) { o[h] = r[idx] != null ? r[idx] : ""; });
+      return o;
+    });
+  }
 
-  var SPECIAL_DATA = {
-    coverage: ["2025-12-12", "2026-07-15"],
-    events: [
-      {bid_date:"2025-12-12",term:"15Y",series_key:"15Y_2",reissue_no:0,amount:3500.0,program:"到期续作特别国债",label:"25特别2"},
-      {bid_date:"2025-12-12",term:"10Y",series_key:"10Y_1",reissue_no:0,amount:4000.0,program:"到期续作特别国债",label:"25特别1"},
-      {bid_date:"2026-04-24",term:"20Y",series_key:"20Y_1",reissue_no:0,amount:340.0,program:"超长期特别国债",label:"26特别1"},
-      {bid_date:"2026-04-24",term:"30Y",series_key:"30Y_2",reissue_no:0,amount:850.0,program:"超长期特别国债",label:"26特别2"},
-      {bid_date:"2026-05-06",term:"50Y",series_key:"50Y_3",reissue_no:0,amount:450.0,program:"超长期特别国债",label:"26特别3"},
-      {bid_date:"2026-05-08",term:"30Y",series_key:"30Y_2",reissue_no:1,amount:850.0,program:"超长期特别国债",label:"26特别2续1"},
-      {bid_date:"2026-05-13",term:"20Y",series_key:"20Y_1",reissue_no:1,amount:340.0,program:"超长期特别国债",label:"26特别1续1"},
-      {bid_date:"2026-05-20",term:"30Y",series_key:"30Y_2",reissue_no:2,amount:850.0,program:"超长期特别国债",label:"26特别2续2"},
-      {bid_date:"2026-06-03",term:"30Y",series_key:"30Y_2",reissue_no:3,amount:850.0,program:"超长期特别国债",label:"26特别2续3"},
-      {bid_date:"2026-06-05",term:"20Y",series_key:"20Y_1",reissue_no:2,amount:340.0,program:"超长期特别国债",label:"26特别1续2"},
-      {bid_date:"2026-06-24",term:"30Y",series_key:"30Y_4",reissue_no:0,amount:850.0,program:"超长期特别国债",label:"26特别4"},
-      {bid_date:"2026-07-03",term:"30Y",series_key:"30Y_4",reissue_no:1,amount:800.0,program:"超长期特别国债",label:"26特别4续1"},
-      {bid_date:"2026-07-14",term:"20Y",series_key:"20Y_5",reissue_no:0,amount:300.0,program:"超长期特别国债",label:"26特别5"},
-      {bid_date:"2026-07-15",term:"30Y",series_key:"30Y_4",reissue_no:2,amount:800.0,program:"超长期特别国债",label:"26特别4续2"}
-    ],
-    seriesTotals: [
-      {series_key:"10Y_1", term:"10Y", total:4000.0, program:"到期续作特别国债", n:1},
-      {series_key:"15Y_2", term:"15Y", total:3500.0, program:"到期续作特别国债", n:1},
-      {series_key:"20Y_1", term:"20Y", total:1020.0, program:"超长期特别国债", n:3},
-      {series_key:"30Y_2", term:"30Y", total:3400.0, program:"超长期特别国债", n:4},
-      {series_key:"50Y_3", term:"50Y", total:450.0, program:"超长期特别国债", n:1},
-      {series_key:"30Y_4", term:"30Y", total:2450.0, program:"超长期特别国债", n:3},
-      {series_key:"20Y_5", term:"20Y", total:300.0, program:"超长期特别国债", n:1}
-    ],
-    grandTotal: 15120.0
-  };
+  function loadCSV(name) {
+    // file:// 下浏览器通常禁止 fetch 本地相对路径，也常拦跨域 raw；优先用内嵌副本保证双击可开。
+    // http(s) / GitHub Pages 下优先 fetch 外挂 CSV，失败再回退内嵌。
+    function fromEmbed() {
+      if (!EMBEDDED_CSV[name]) return Promise.reject(new Error("缺少内嵌数据：" + name));
+      return Promise.resolve(parseCSV(EMBEDDED_CSV[name]));
+    }
+    if (location.protocol === "file:" && !new URLSearchParams(location.search).get("data")) {
+      return fromEmbed();
+    }
+    return fetch(DATA_BASE + name, { cache: "no-cache" }).then(function (res) {
+      if (!res.ok) throw new Error("无法加载 " + DATA_BASE + name + " (" + res.status + ")");
+      return res.text();
+    }).then(parseCSV).catch(function (err) {
+      console.warn("fetch CSV 失败，改用内嵌副本：", name, err);
+      return fromEmbed();
+    });
+  }
+
+  function num(v) { return Number(v); }
+  function bool01(v) { return v === "1" || v === "true" || v === true; }
+
+  function assemble(metaRows, tenorRows, planRows, eventRows, seriesRows, specialEventRows, specialSeriesRows) {
+    var meta = {};
+    metaRows.forEach(function (r) { meta[r.key] = r.value; });
+
+    DATA = {};
+    tenorRows.forEach(function (r) {
+      DATA[r.term] = {
+        n: num(r.n),
+        weekday: [num(r.wd_mon), num(r.wd_tue), num(r.wd_wed), num(r.wd_thu), num(r.wd_fri)],
+        dayBuckets: [num(r.bucket_early), num(r.bucket_mid), num(r.bucket_late)],
+        qMedian: num(r.q_median),
+        first: num(r.first),
+        reissue: num(r.reissue),
+        color: TERM_COLOR[r.term],
+        avgPerMonth: [r.m01,r.m02,r.m03,r.m04,r.m05,r.m06,r.m07,r.m08,r.m09,r.m10,r.m11,r.m12].map(num),
+        qInYearAvg: [num(r.q1), num(r.q2), num(r.q3), num(r.q4)]
+      };
+    });
+
+    PLAN_VS_ACTUAL = { coverage: [meta.plan_coverage_start, meta.plan_coverage_end] };
+    ["5Y", "10Y", "30Y"].forEach(function (term) {
+      PLAN_VS_ACTUAL[term] = { planned: [], actual: [] };
+    });
+    planRows.forEach(function (r) {
+      if (PLAN_VS_ACTUAL[r.term] && (r.kind === "planned" || r.kind === "actual")) {
+        PLAN_VS_ACTUAL[r.term][r.kind].push(r.bid_date);
+      }
+    });
+
+    EVENT_DATA = {};
+    ["5Y", "10Y", "30Y"].forEach(function (term) {
+      EVENT_DATA[term] = { events: [], seriesTotals: [], grandTotal: 0, grandRoutine: 0, grandSpecial: 0 };
+    });
+    eventRows.forEach(function (r) {
+      EVENT_DATA[r.term].events.push({
+        bid_date: r.bid_date,
+        series_key: r.series_key,
+        issue_no: num(r.issue_no),
+        reissue_no: num(r.reissue_no),
+        amount: num(r.amount),
+        is_special: bool01(r.is_special),
+        label: r.label
+      });
+    });
+    seriesRows.forEach(function (r) {
+      var td = EVENT_DATA[r.term];
+      td.seriesTotals.push({
+        series_key: r.series_key,
+        total: num(r.total),
+        is_special: bool01(r.is_special),
+        note: r.note || undefined
+      });
+      if (!td._grandSet) {
+        td.grandTotal = num(r.grand_total);
+        td.grandRoutine = num(r.grand_routine);
+        td.grandSpecial = num(r.grand_special);
+        td._grandSet = true;
+      }
+    });
+    ["5Y", "10Y", "30Y"].forEach(function (term) { delete EVENT_DATA[term]._grandSet; });
+
+    SPECIAL_DATA = {
+      coverage: [meta.special_coverage_start, meta.special_coverage_end],
+      events: specialEventRows.map(function (r) {
+        return {
+          bid_date: r.bid_date,
+          term: r.term,
+          series_key: r.series_key,
+          reissue_no: num(r.reissue_no),
+          amount: num(r.amount),
+          program: r.program,
+          label: r.label
+        };
+      }),
+      seriesTotals: specialSeriesRows.map(function (r) {
+        return {
+          series_key: r.series_key,
+          term: r.term,
+          total: num(r.total),
+          program: r.program,
+          n: num(r.n)
+        };
+      }),
+      grandTotal: num(meta.special_grand_total)
+    };
+  }
 
   function svgEl(tag, attrs) {
     var e = document.createElementNS("http://www.w3.org/2000/svg", tag);
@@ -519,6 +542,18 @@
     return svg;
   }
 
+  function showDataError(err) {
+    var el = document.querySelector(".wrap");
+    var box = document.createElement("div");
+    box.className = "callout";
+    box.style.margin = "0 0 24px";
+    box.innerHTML = "<strong>数据加载失败：</strong>" + (err && err.message ? err.message : String(err)) +
+      "<br/>请确认 <code>data/*.csv</code> 可通过相对路径或 GitHub raw URL 访问。可用查询参数覆盖：<code>?data=" + GH_DATA + "</code>";
+    if (el) el.insertBefore(box, el.firstChild);
+    console.error(err);
+  }
+
+  function renderPage() {
   // ---- KPI row ----
   var kpiRow = document.getElementById("kpiRow");
   var totalN = DATA["5Y"].n + DATA["10Y"].n + DATA["30Y"].n;
@@ -1013,6 +1048,21 @@
     '<strong>Q3（7–9月）是全年招标最密集的自然季度</strong>——相对Q1（1–3月）的倍数：' +
     '5Y ' + q3Ratios[0] + '× ／ 10Y ' + q3Ratios[1] + '× ／ 30Y ' + q3Ratios[2] + '×。' +
     '10年期的季节性最强，Q3平均招标次数接近Q1的两倍；5年期最平稳，四个季度差异不大。';
+  }
+
+  Promise.all([
+    loadCSV("meta.csv"),
+    loadCSV("tenor_stats.csv"),
+    loadCSV("plan_vs_actual.csv"),
+    loadCSV("events.csv"),
+    loadCSV("series_totals.csv"),
+    loadCSV("special_events.csv"),
+    loadCSV("special_series.csv")
+  ]).then(function (parts) {
+    assemble(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]);
+    renderPage();
+  }).catch(showDataError);
+
 })();
 </script>
 
